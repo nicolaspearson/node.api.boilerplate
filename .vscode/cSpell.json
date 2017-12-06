@@ -1,0 +1,37 @@
+// cSpell Settings
+{
+    // cSpell Settings
+    // cSpell Settings
+    // Version of the setting file.  Always 0.1
+    "version": "0.1",
+    // language - current active spelling language
+    "language": "en",
+    // words - list of words to be always considered correct
+    "words": [
+        "asynciterable",
+        "bodyparser",
+        "dbtest",
+        "deserialize",
+        "esnext",
+        "farmhash",
+        "kcors",
+        "middlewares",
+        "mockito",
+        "msisdn",
+        "nospace",
+        "onespace",
+        "pree",
+        "promisify",
+        "quotemark",
+        "testdb",
+        "typedi",
+        "typeorm",
+        "Websockets"
+    ],
+    // flagWords - list of words to be always considered incorrect
+    // This is useful for offensive words and common spelling errors.
+    // For example "hte" should be "the"
+    "flagWords": [
+        "hte"
+    ]
+}

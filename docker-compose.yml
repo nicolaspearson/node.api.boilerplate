@@ -1,0 +1,17 @@
+version: '3'
+services:
+  db:
+    image: mysql:latest
+    expose:
+        - 3306
+    container_name: nab
+    ports:
+      - 3306:3306
+    volumes:
+      - ./src/db/db-scripts:/docker-entrypoint-initdb.d
+      - ./src/db/db-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=nab
+      - MYSQL_USER=nab_user
+      - MYSQL_PASSWORD=temppassword

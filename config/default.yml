@@ -1,0 +1,32 @@
+server:
+  cluster: false
+  api:
+    basePath: /api/v1
+    docs: api-docs
+    host: localhost
+    port: 3000
+    protocol: http
+    whitelist: ['http://localhost:3000']
+  auth:
+    accessToken: 'SecretAccessToken'
+    testToken: 'SecretTestToken'
+    jwtSecret: 'SecretJwtToken'
+    jwtExpiresIn: '7d'
+  logs:
+    dir: './logs'
+  db:
+    database: nab
+    host: localhost
+    logging: false
+    name: default
+    password: root
+    port: 3306
+    username: root
+  socket:
+    host: localhost
+    path: /api-socket
+    port: 3001
+  user:
+    email: 'tester@hello.com'
+    password: 'hello123'
+    username: 'Tester'

@@ -1,0 +1,8 @@
+{
+	"recommendations": [
+		"eg2.tslint",
+		"esbenp.prettier-vscode",
+		"streetsidesoftware.code-spell-checker",
+		"wayou.vscode-todo-highlight"
+	]
+}
