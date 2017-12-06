@@ -13,7 +13,7 @@ This is a Node JS Boilerplate API, built using Koa, Typescript, and MySQL.
 6. Run `npm start` to run the application.
 7. Run `npm run serve:prod` to run the server in a production environment.
 8. Run `npm run test:unit` to execute the unit tests.
-9. To customize, update the configuration parameters in `./config/default.yml` /
+9. To customize, update the configuration parameters in `./config/default.yml` or
 	`./config/production.yml` and the docker compose .yml files
 
 ### Auth and Credentials
@@ -25,7 +25,7 @@ users in the database:
 * Password: `hello123`
 
 You can use these credentials to execute the
-`http://localhost/api/v1/users/login` POST API call and retrieve a JWT token.
+`http://localhost:3000/api/v1/users/login` POST API call and retrieve a JWT token.
 
 ### Generating new Controllers, Models, Repositories, and Services
 
