@@ -1,6 +1,8 @@
 # README
 
-This is a Node JS Boilerplate API, built using Koa, Typescript, and MySQL.
+This is a Node JS Boilerplate API, built using Koa, Typescript, MySQL, and
+Socket.IO. It comes with clustering support out of the box that works with
+Socket.IO connections.
 
 ### Running the project
 
@@ -13,8 +15,8 @@ This is a Node JS Boilerplate API, built using Koa, Typescript, and MySQL.
 6. Run `npm start` to run the application.
 7. Run `npm run serve:prod` to run the server in a production environment.
 8. Run `npm run test:unit` to execute the unit tests.
-9. To customize, update the configuration parameters in `./config/default.yml` or
-	`./config/production.yml` and the docker compose .yml files
+9. To customize, update the configuration parameters in `./config/default.yml`
+	or `./config/production.yml` and the docker compose .yml files
 
 ### Auth and Credentials
 
@@ -25,7 +27,8 @@ users in the database:
 * Password: `hello123`
 
 You can use these credentials to execute the
-`http://localhost:3000/api/v1/users/login` POST API call and retrieve a JWT token.
+`http://localhost:3000/api/v1/users/login` POST API call and retrieve a JWT
+token.
 
 ### Generating new Controllers, Models, Repositories, and Services
 
@@ -42,6 +45,18 @@ repository pattern:
 	multi-word component please use LetterCasing, e.g. `GoldFish`.
 
 The templates can be customized as required in `./src/templates/`
+
+### Clustering
+
+A single instance of Node.js runs in a single thread. To take advantage of
+multi-core systems, the user will sometimes want to launch a cluster of Node.js
+processes to handle the load.
+
+In cluster environment socket.io requires you to use sticky sessions, to ensure
+that a given client hits the same process every time, otherwise its handshake
+mechanism won't work properly. I adapted the
+[Sticky Cluster](https://github.com/uqee/sticky-cluster) module to support
+Typescript.
 
 ## Technologies used:
 
