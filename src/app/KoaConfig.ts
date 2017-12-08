@@ -30,17 +30,14 @@ export class KoaConfig {
 		// Empty constructor
 	}
 
-	public async setupKoa(
-		options: IApplicationOptions,
-		workerName: string
-	): Promise<Koa> {
-		this.appLogger.winston.debug(`KoaConfig: ${workerName}: Started`);
+	public async setupKoa(options: IApplicationOptions): Promise<Koa> {
+		this.appLogger.winston.debug(`KoaConfig: Started`);
 		this.app = new Koa();
 
 		// Setup logging
 		if (options.useKoaLogger) {
 			const logging: Logging = Container.get(Logging);
-			logging.setupLogging(this.app, workerName);
+			logging.setupLogging(this.app);
 		}
 
 		// Setup Cors
@@ -53,7 +50,7 @@ export class KoaConfig {
 		this.app.use(helmet());
 		this.app.use(bodyParser());
 		this.appLogger.winston.debug(
-			`KoaConfig: ${workerName}: Finished: Controllers & Middleware Configured`
+			`KoaConfig: Finished: Controllers & Middleware Configured`
 		);
 		return this.app;
 	}

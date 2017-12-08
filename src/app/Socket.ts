@@ -1,9 +1,8 @@
 import * as config from 'config';
 import { defaultMetadataRegistry } from 'event-dispatch/MetadataRegistry';
 import * as glob from 'glob';
-import { Server as HttpServer } from 'http';
+import { Server } from 'http';
 import * as jwt from 'jsonwebtoken';
-import { Server as NetServer } from 'net';
 import * as path from 'path';
 import * as ioServer from 'socket.io';
 import * as ioClient from 'socket.io-client';
@@ -51,11 +50,10 @@ export class Sockets {
 	}
 
 	public async setupSockets(
-		server: HttpServer | NetServer,
-		workerName: string
+		server: Server | undefined
 	): Promise<SocketIO.Server> {
 		Sockets.socketServer = ioServer(
-			config.get('server.socket.port'),
+			server || config.get('server.socket.port'),
 			this.getSocketServerOptions()
 		);
 
@@ -76,10 +74,7 @@ export class Sockets {
 									new Token(socket.handshake.query.token)
 								);
 							} catch (error) {
-								this.appLogger.winston.error(
-									`Sockets: ${workerName}: Auth Error`,
-									error
-								);
+								this.appLogger.winston.error(`Sockets: Auth Error`, error);
 								return next(new Error('Authentication error'));
 							}
 							next();
@@ -103,9 +98,7 @@ export class Sockets {
 				);
 			});
 
-		this.appLogger.winston.debug(
-			`Sockets: ${workerName}: Web Sockets Initialized`
-		);
+		this.appLogger.winston.debug(`Sockets: Web Sockets Initialized`);
 
 		return Sockets.socketServer;
 	}

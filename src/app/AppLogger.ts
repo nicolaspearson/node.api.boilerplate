@@ -1,3 +1,4 @@
+import * as cluster from 'cluster';
 import * as config from 'config';
 import * as moment from 'moment';
 import { Service } from 'typedi';
@@ -32,11 +33,15 @@ export default class AppLogger {
 					},
 					formatter: options => {
 						// Format the output
+						const workerName =
+							cluster && cluster.worker && cluster.worker.id
+								? `[Worker-ID: ${cluster.worker.id}] - `
+								: '[Main-Instance] - ';
 						return (
 							moment(options.timestamp()).format('YYYY/MM/DD HH:mm:ss') +
 							' - ' +
 							options.level.toUpperCase() +
-							' - ' +
+							` - ${workerName}` +
 							(options.message ? options.message : '') +
 							(options.meta && Object.keys(options.meta).length
 								? '\n\t' + JSON.stringify(options.meta, undefined, 2)

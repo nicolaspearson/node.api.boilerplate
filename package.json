@@ -40,7 +40,6 @@
 		"class-validator": "~0.7.3",
 		"config": "~1.26.2",
 		"event-dispatch": "~0.4.1",
-		"farmhash": "~2.0.4",
 		"fs": "0.0.1-security",
 		"fs-extra": "~4.0.3",
 		"glob": "~7.1.2",

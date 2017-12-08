@@ -14,10 +14,7 @@ export class Database {
 		// Empty constructor
 	}
 
-	public async setupDatabase(
-		app: Koa,
-		workerName: string
-	): Promise<Connection> {
+	public async setupDatabase(app: Koa): Promise<Connection> {
 		// Create the database connection
 		try {
 			if (!this.connection) {
@@ -26,7 +23,7 @@ export class Database {
 		} catch (error) {
 			throw error;
 		}
-		this.appLogger.winston.debug(`Database: ${workerName}: Connected`);
+		this.appLogger.winston.debug(`Database: Connected`);
 		return this.connection;
 	}
 

@@ -11,14 +11,14 @@ export class Logging {
 		// Empty constructor
 	}
 
-	public setupLogging(app: Koa, workerName: string) {
+	public setupLogging(app: Koa) {
 		// Initialize the Koa Logger Middleware
 		const koaLoggerWinston: KoaLoggerWinston.Logger = new KoaLoggerWinston.Logger(
 			this.getKoaLoggerOptions(this.appLogger.winston)
 		);
 		// Add the Koa Logger Middleware
 		app.use(koaLoggerWinston.log());
-		this.appLogger.winston.debug(`Logger: ${workerName}: Middleware Added`);
+		this.appLogger.winston.debug(`Logger: Middleware Added`);
 	}
 
 	private getKoaLoggerOptions(

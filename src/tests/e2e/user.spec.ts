@@ -1,8 +1,7 @@
 import { expect } from 'chai';
 import * as config from 'config';
-import { Server as HttpServer } from 'http';
+import { Server } from 'http';
 import 'mocha';
-import { Server as NetServer } from 'net';
 import { useContainer as routingUseContainer } from 'routing-controllers';
 import { agent } from 'supertest';
 import { Container } from 'typedi';
@@ -13,7 +12,7 @@ import User from '../../models/User';
 import UserTestBuilder from '../test-utils/UserTestBuilder';
 
 describe('End to End: User Actions', () => {
-	let app: HttpServer | NetServer;
+	let app: Server;
 
 	const basePath = config.get('server.api.basePath');
 

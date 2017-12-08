@@ -1,5 +1,5 @@
 server:
-  cluster: false
+  cluster: true
   api:
     basePath: /api/v1
     docs: api-docs
@@ -25,7 +25,7 @@ server:
   socket:
     host: localhost
     path: /api-socket
-    port: 3001
+    port: 3000
   user:
     email: 'tester@hello.com'
     password: 'hello123'

@@ -2,9 +2,8 @@ import 'reflect-metadata';
 import 'source-map-support/register';
 import 'ts-helpers';
 
-import { Server as HttpServer } from 'http';
+import { Server } from 'http';
 import * as Koa from 'koa';
-import { Server as NetServer } from 'net';
 import 'reflect-metadata';
 import 'source-map-support/register';
 import 'ts-helpers';
@@ -23,7 +22,7 @@ export class Application {
 
 	public static options: IApplicationOptions;
 
-	public static server: HttpServer | NetServer;
+	public static server: Server;
 
 	constructor() {
 		// Empty constructor
@@ -33,7 +32,7 @@ export class Application {
 		return Application.app;
 	}
 
-	public static getServer(): HttpServer | NetServer {
+	public static getServer(): Server {
 		return Application.server;
 	}
 
@@ -45,7 +44,7 @@ export class Application {
 
 		Application.options = options;
 
-		this.appLogger.winston.debug('Application: Configuration Started');
+		this.appLogger.winston.debug(`Application: Configuration Started`);
 
 		const webServer: WebServer = Container.get(WebServer);
 		await webServer.setupWebServer(options);
