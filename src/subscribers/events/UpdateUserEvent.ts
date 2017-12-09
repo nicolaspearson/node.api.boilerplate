@@ -37,7 +37,7 @@ export class UpdateUserEvent extends BaseEvent implements ISocketEvent {
 				);
 
 				if (action.data.user.emailAddress) {
-					user.emailAddress = action.data.user.emailAddress;
+					user.username = action.data.user.username;
 				}
 
 				if (action.data.user.emailAddress) {
