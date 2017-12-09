@@ -1,3 +1,5 @@
+import { JsonWebTokenError } from 'jsonwebtoken';
+import * as moment from 'moment';
 import { Inject } from 'typedi';
 import { FindManyOptions, FindOneOptions } from 'typeorm';
 
@@ -61,6 +63,11 @@ export default class UserService extends BaseService {
 			// Create a token
 			const newToken: Token = new Token();
 			newToken.generateToken(userResult.id);
+
+			// Update the logged in timestamp
+			userResult.lastLoggedInAt = moment().toDate();
+			this.update(userResult);
+
 			// Return the created token
 			return { token: newToken.token, user: userResult.sanitize() };
 		} catch (error) {
@@ -137,6 +144,9 @@ export default class UserService extends BaseService {
 			}
 			return userResult.sanitize();
 		} catch (error) {
+			if (error instanceof JsonWebTokenError) {
+				throw new UnauthorizedError('Invalid token');
+			}
 			if (error instanceof HttpError) {
 				if (error instanceof NotFoundError) {
 					throw new UnauthorizedError('Invalid token');
@@ -240,14 +250,63 @@ export default class UserService extends BaseService {
 			if (!userIsValid || !User.validId(user.id)) {
 				throw new BadRequestError('Incorrect / invalid parameters supplied');
 			}
-			// Encrypt the users password
-			await user.encryptUserPassword();
+			// Do not allow the password to be updated with this method
+			delete user.password;
 			// Update the user on the database
 			const userResult: User = await this.userRepository.updateOneById(
 				user.id,
 				user
 			);
 			return userResult.sanitize();
+		} catch (error) {
+			if (error instanceof HttpError) {
+				throw error;
+			}
+			throw new InternalServerError(error);
+		}
+	}
+
+	public async changePassword(user: User, newPassword: string): Promise<User> {
+		try {
+			// Check if the user is valid
+			const userIsValid = await user.isValid();
+			if (
+				!userIsValid ||
+				!User.validId(user.id) ||
+				!user.password ||
+				!newPassword
+			) {
+				throw new BadRequestError('Incorrect / invalid parameters supplied');
+			}
+
+			// Fetch the user from the database
+			const userResult: User = await this.userRepository.findOneByFilter({
+				where: {
+					username: user.username
+				}
+			});
+
+			// Validate the input parameters
+			const userValidate: User = User.cloneUser(userResult);
+			userValidate.password = user.password || '';
+			await userValidate.isValid();
+
+			// Validate the provided password
+			const valid = await userResult.validatePassword(user.password);
+			if (!valid) {
+				throw new UnauthorizedError('Invalid password');
+			}
+
+			// Encrypt the users new password
+			userResult.password = newPassword;
+			await userResult.encryptUserPassword();
+
+			// Update the user on the database
+			const userUpdateResult: User = await this.userRepository.updateOneById(
+				userResult.id,
+				userResult
+			);
+			return userUpdateResult.sanitize();
 		} catch (error) {
 			if (error instanceof HttpError) {
 				throw error;

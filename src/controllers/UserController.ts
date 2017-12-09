@@ -222,6 +222,71 @@ export default class UserController {
 
 	/**
 	 * @swagger
+	 * /users/changePassword:
+	 *   post:
+	 *     summary: Change a users password
+	 *     description: Changes an existing user's password
+	 *     operationId: changePassword
+	 *     tags: [user]
+	 *     consumes:
+	 *       - application/json
+	 *     produces:
+	 *       - application/json
+	 *     parameters:
+	 *       - name: Authorization
+	 *         in: header
+	 *         description: jwt access token
+	 *         required: true
+	 *         type: string
+	 *       - name: newPassword
+	 *         in: path
+	 *         description: the user's new password
+	 *         required: true
+	 *         type: string
+	 *       - name: user
+	 *         in: body
+	 *         description: the user
+	 *         required: true
+	 *         schema:
+	 *           $ref: '#/definitions/UserRequest'
+	 *     responses:
+	 *       200:
+	 *         description: The updated user
+	 *         schema:
+	 *           $ref: '#/definitions/UserResponse'
+	 *       400:
+	 *         $ref: '#/responses/BadRequest'
+	 *       401:
+	 *         $ref: '#/responses/Unauthorized'
+	 *       403:
+	 *         $ref: '#/responses/Forbidden'
+	 *       404:
+	 *         $ref: '#/responses/NotFound'
+	 *       405:
+	 *         $ref: '#/responses/MethodNotAllowed'
+	 *       406:
+	 *         $ref: '#/responses/NotAcceptable'
+	 *       500:
+	 *         $ref: '#/responses/InternalServerError'
+	 *       504:
+	 *         $ref: '#/responses/GatewayTimeout'
+	 *       default:
+	 *         $ref: '#/responses/DefaultError'
+	 */
+	@Post('/users/changePassword')
+	public async changePassword(
+		@BodyParam('newPassword') newPassword: string,
+		@BodyParam('user', { validate: false })
+		user: User
+	): Promise<User> {
+		if (!user || !newPassword) {
+			throw new BadRequestError('The required parameters were not supplied.');
+		}
+		return await this.userService.changePassword(user, newPassword);
+	}
+
+	/**
+	 * @swagger
 	 * /users/{id}:
 	 *   put:
 	 *     summary: Updates a specific user

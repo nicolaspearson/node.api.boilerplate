@@ -1,4 +1,5 @@
 import * as config from 'config';
+import { JsonWebTokenError } from 'jsonwebtoken';
 import * as Koa from 'koa';
 import * as bodyParser from 'koa-bodyparser';
 import * as helmet from 'koa-helmet';
@@ -9,6 +10,13 @@ import {
 	useKoaServer
 } from 'routing-controllers';
 import { Container, Inject } from 'typedi';
+
+import {
+	HttpError,
+	InternalServerError,
+	NotFoundError,
+	UnauthorizedError
+} from '../exceptions/index';
 import ErrorMiddleware from '../middleware/ErrorMiddleware';
 import SuccessMiddleware from '../middleware/SuccessMiddleware';
 import Token from '../models/internal/Token';
@@ -150,11 +158,24 @@ export class KoaConfig {
 				config.get('server.auth.testToken') === testToken &&
 				userAgent === 'node-superagent/3.6.0'
 			) {
-				// Decode the token
-				const decodedToken: any = token.verifyToken();
-				const userId = decodedToken.id;
-				if (User.validId(userId)) {
-					return true;
+				try {
+					// Decode the token
+					const decodedToken: any = token.verifyToken();
+					const userId = decodedToken.id;
+					if (User.validId(userId)) {
+						return true;
+					}
+				} catch (error) {
+					if (error instanceof JsonWebTokenError) {
+						throw new UnauthorizedError('Invalid token');
+					}
+					if (error instanceof HttpError) {
+						if (error instanceof NotFoundError) {
+							throw new UnauthorizedError('Invalid token');
+						}
+						throw error;
+					}
+					throw new InternalServerError(error);
 				}
 			}
 		}

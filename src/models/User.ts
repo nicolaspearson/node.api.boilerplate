@@ -6,7 +6,13 @@ import {
 	ValidationArguments,
 	ValidationError
 } from 'class-validator';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+	Column,
+	CreateDateColumn,
+	Entity,
+	PrimaryGeneratedColumn,
+	UpdateDateColumn
+} from 'typeorm';
 
 import { BadRequestError, HttpError } from '../exceptions';
 
@@ -24,6 +30,8 @@ import { BadRequestError, HttpError } from '../exceptions';
  *         type: string
  *       password:
  *         type: string
+ *       lastLoggedInAt:
+ *         type: string
  *
  *   UserResponse:
  *     type: object
@@ -33,6 +41,8 @@ import { BadRequestError, HttpError } from '../exceptions';
  *       username:
  *         type: string
  *       emailAddress:
+ *         type: string
+ *       lastLoggedInAt:
  *         type: string
  */
 @Entity()
@@ -65,11 +75,21 @@ export default class User {
 	})
 	public password: string;
 
+	@Column({ name: 'last_logged_in_at' })
+	public lastLoggedInAt: Date;
+
+	@CreateDateColumn({ name: 'created_at' })
+	public createdAt: Date;
+
+	@UpdateDateColumn({ name: 'updated_at' })
+	public updatedAt: Date;
+
 	public static newUser(obj: {
 		id?: number;
 		username?: string;
 		emailAddress?: string;
 		password?: string;
+		lastLoggedInAt?: Date;
 	}) {
 		const newUser = new User();
 		if (obj.id) {
@@ -83,6 +103,9 @@ export default class User {
 		}
 		if (obj.password) {
 			newUser.password = obj.password;
+		}
+		if (obj.lastLoggedInAt) {
+			newUser.lastLoggedInAt = obj.lastLoggedInAt;
 		}
 		return newUser;
 	}
@@ -100,6 +123,9 @@ export default class User {
 		}
 		if (obj.password) {
 			newUser.password = obj.password;
+		}
+		if (obj.lastLoggedInAt) {
+			newUser.lastLoggedInAt = obj.lastLoggedInAt;
 		}
 		return newUser;
 	}
