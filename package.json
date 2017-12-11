@@ -1,33 +1,40 @@
 {
 	"name": "node-api-boilerplate",
 	"version": "1.0.0",
-	"description": "This is Node JS Boilerplate API, using Koa, Typescript, and MySQL",
+	"description":
+		"This is Node JS Boilerplate API, using Koa, Typescript, and MySQL",
 	"main": "./src/index.ts",
 	"engines": {
 		"node": ">=7.6.0"
 	},
 	"author": "Nicolas Pearson",
-	"license": "UNLICENSED",
+	"license": "GPL-3.0+",
 	"repository": {
 		"type": "git",
-		"url": ""
+		"url": "https://github.com/nicolaspearson/node.api.boilerplate"
 	},
 	"scripts": {
 		"start": "npm run build && npm run watch",
-		"start:debug": "ts-node --inspect=5858 --debug-brk --ignore false ./src/index.ts",
-		"build": "rm -rf ./dist && npm run build:ts && npm run tslint && npm run build:swagger",
+		"start:debug":
+			"ts-node --inspect=5858 --debug-brk --ignore false ./src/index.ts",
+		"build":
+			"rm -rf ./dist && npm run build:ts && npm run tslint && npm run build:swagger",
 		"build:ts": "tsc --rootDir ./src/",
 		"build:swagger": "node ./dist/tasks/Swagger.js",
 		"debug": "npm run build && npm run watch:debug",
 		"serve": "nodemon dist/index.js",
-		"serve:debug": "nodemon --inspect=5858 --debug-brk --ignore false dist/index.js",
-		"watch": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch:ts\" \"npm run serve\"",
-		"watch:debug": "concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch:ts\" \"npm run serve:debug\"",
+		"serve:debug":
+			"nodemon --inspect=5858 --debug-brk --ignore false dist/index.js",
+		"watch":
+			"concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch:ts\" \"npm run serve\"",
+		"watch:debug":
+			"concurrently -k -p \"[{name}]\" -n \"TypeScript,Node\" -c \"yellow.bold,cyan.bold,green.bold\" \"npm run watch:ts\" \"npm run serve:debug\"",
 		"watch:ts": "tsc -w",
 		"tslint": "tslint -c tslint.json -p tsconfig.json",
 		"clean": "rm -rf node_modules && npm install",
 		"test:unit": "mocha -r ts-node/register ./src/tests/unit/**/*.spec.ts",
-		"test:unit:debug": "mocha --inspect --debug-brk --not-timeouts --compilers ts:ts-node/register ./src/tests/unit/**/*.spec.ts",
+		"test:unit:debug":
+			"mocha --inspect --debug-brk --not-timeouts --compilers ts:ts-node/register ./src/tests/unit/**/*.spec.ts",
 		"test:e2e:pre": "ts-node ./src/tests/test-scripts/start-test-db.ts",
 		"test:e2e:run": "ts-node ./src/tests/test-scripts/run-e2e.ts",
 		"test:e2e:post": "ts-node ./src/tests/test-scripts/stop-test-db.ts",
