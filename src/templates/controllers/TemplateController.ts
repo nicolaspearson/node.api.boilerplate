@@ -86,8 +86,8 @@ export default class TemplateController {
 	 * @swagger
 	 * /templates/{id}:
 	 *   get:
-	 *     summary: Find a specific template
-	 *     description: Retrieves a specific template from the database
+	 *     summary: Find a specific Template
+	 *     description: Retrieves a specific Template from the database
 	 *     operationId: findTemplateById
 	 *     tags: [template]
 	 *     produces:
@@ -100,13 +100,13 @@ export default class TemplateController {
 	 *         type: string
 	 *       - name: id
 	 *         in: path
-	 *         description: id of the template
+	 *         description: id of the Template
 	 *         required: true
 	 *         type: integer
 	 *         format: int32
 	 *     responses:
 	 *       200:
-	 *         description: The found template
+	 *         description: The found Template
 	 *         schema:
 	 *           $ref: '#/definitions/TemplateResponse'
 	 *       400:
@@ -138,8 +138,8 @@ export default class TemplateController {
 	 * @swagger
 	 * /templates:
 	 *   post:
-	 *     summary: Save a new template
-	 *     description: Saves a new template to the database
+	 *     summary: Save a new Template
+	 *     description: Saves a new Template to the database
 	 *     operationId: saveTemplate
 	 *     tags: [template]
 	 *     consumes:
@@ -154,13 +154,13 @@ export default class TemplateController {
 	 *         type: string
 	 *       - name: template
 	 *         in: body
-	 *         description: the template
+	 *         description: the Template
 	 *         required: true
 	 *         schema:
 	 *           $ref: '#/definitions/TemplateRequest'
 	 *     responses:
 	 *       200:
-	 *         description: The saved template
+	 *         description: The saved Template
 	 *         schema:
 	 *           $ref: '#/definitions/TemplateResponse'
 	 *       400:
@@ -192,8 +192,8 @@ export default class TemplateController {
 	 * @swagger
 	 * /templates/{id}:
 	 *   put:
-	 *     summary: Updates a specific template
-	 *     description: Updates a specific template on the database
+	 *     summary: Updates a specific Template
+	 *     description: Updates a specific Template on the database
 	 *     operationId: updateTemplate
 	 *     tags: [template]
 	 *     consumes:
@@ -208,19 +208,19 @@ export default class TemplateController {
 	 *         type: string
 	 *       - name: id
 	 *         in: path
-	 *         description: id of the template
+	 *         description: id of the Template
 	 *         required: true
 	 *         type: integer
 	 *         format: int32
-	 *       - name: template
+	 *       - name: Template
 	 *         in: body
-	 *         description: the template
+	 *         description: the Template
 	 *         required: true
 	 *         schema:
 	 *           $ref: '#/definitions/TemplateRequest'
 	 *     responses:
 	 *       200:
-	 *         description: The updated template
+	 *         description: The updated Template
 	 *         schema:
 	 *           $ref: '#/definitions/TemplateResponse'
 	 *       400:
@@ -260,8 +260,8 @@ export default class TemplateController {
 	 * @swagger
 	 * /templates/{id}:
 	 *   delete:
-	 *     summary: Deletes a specific template
-	 *     description: Removes a specific template from the database
+	 *     summary: Deletes a specific Template
+	 *     description: Removes a specific Template from the database
 	 *     operationId: deleteTemplate
 	 *     tags: [template]
 	 *     produces:
@@ -274,13 +274,13 @@ export default class TemplateController {
 	 *         type: string
 	 *       - name: id
 	 *         in: path
-	 *         description: id of the template
+	 *         description: id of the Template
 	 *         required: true
 	 *         type: integer
 	 *         format: int32
 	 *     responses:
 	 *       200:
-	 *         description: The deleted template
+	 *         description: The deleted Template
 	 *         schema:
 	 *           $ref: '#/definitions/TemplateResponse'
 	 *       400:
@@ -310,10 +310,10 @@ export default class TemplateController {
 
 	/**
 	 * @swagger
-	 * /template/delete:
+	 * /templates/delete:
 	 *   post:
-	 *     summary: Delete template object/s using the provided filter
-	 *     description: Delete one or many template object/s that match the provided filter
+	 *     summary: Delete Template object/s using the provided filter
+	 *     description: Delete one or many Template object/s that match the provided filter
 	 *     operationId: deleteTemplateByFilter
 	 *     tags: [template]
 	 *     produces:
@@ -343,7 +343,7 @@ export default class TemplateController {
 	 *                 $ref: '#/definitions/SearchTermRequest'
 	 *     responses:
 	 *       200:
-	 *         description: An array of deleted template object/s
+	 *         description: An array of deleted Template object/s
 	 *         schema:
 	 *           type: array
 	 *           items:
@@ -367,7 +367,7 @@ export default class TemplateController {
 	 *       default:
 	 *         $ref: '#/responses/DefaultError'
 	 */
-	@Post('/template/delete')
+	@Post('/templates/delete')
 	@Authorized()
 	public async deleteTemplateByFilter(
 		@BodyParam('limit') limit: number,
