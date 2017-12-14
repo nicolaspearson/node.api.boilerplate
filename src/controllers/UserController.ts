@@ -238,17 +238,17 @@ export default class UserController {
 	 *         description: jwt access token
 	 *         required: true
 	 *         type: string
-	 *       - name: newPassword
-	 *         in: path
-	 *         description: the user's new password
-	 *         required: true
-	 *         type: string
-	 *       - name: user
+	 *       - name: body
 	 *         in: body
-	 *         description: the user
 	 *         required: true
 	 *         schema:
-	 *           $ref: '#/definitions/UserRequest'
+	 *           type: object
+	 *           properties:
+	 *             newPassword:
+	 *               description: the user's new password
+	 *               type: string
+	 *             user:
+	 *               $ref: '#/definitions/UserRequest'
 	 *     responses:
 	 *       200:
 	 *         description: The updated user
@@ -280,7 +280,9 @@ export default class UserController {
 		user: User
 	): Promise<User> {
 		if (!user || !newPassword) {
-			throw new BadRequestError('The required parameters were not supplied.');
+			throw new BadRequestError(
+				'The required parameters were not supplied.'
+			);
 		}
 		return await this.userService.changePassword(user, newPassword);
 	}

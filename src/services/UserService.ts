@@ -94,9 +94,13 @@ export default class UserService extends BaseService {
 		}
 	}
 
-	public async findAllByFilter(filter: FindManyOptions<User>): Promise<User[]> {
+	public async findAllByFilter(
+		filter: FindManyOptions<User>
+	): Promise<User[]> {
 		try {
-			const users: User[] = await this.userRepository.findManyByFilter(filter);
+			const users: User[] = await this.userRepository.findManyByFilter(
+				filter
+			);
 			const sanitizedUsers = users.map((user: User) => {
 				user.sanitize();
 				return user;
@@ -113,7 +117,9 @@ export default class UserService extends BaseService {
 	public async findOneById(id: number): Promise<User> {
 		try {
 			if (!User.validId(id) || isNaN(id)) {
-				throw new BadRequestError('Incorrect / invalid parameters supplied');
+				throw new BadRequestError(
+					'Incorrect / invalid parameters supplied'
+				);
 			}
 			const userResult: User = await this.userRepository.findOneById(id);
 			return userResult.sanitize();
@@ -181,7 +187,9 @@ export default class UserService extends BaseService {
 			if (userResult) {
 				return userResult.sanitize();
 			} else {
-				throw new NotFoundError('The requested object could not be found');
+				throw new NotFoundError(
+					'The requested object could not be found'
+				);
 			}
 		} catch (error) {
 			if (error instanceof HttpError) {
@@ -228,7 +236,9 @@ export default class UserService extends BaseService {
 			// Check if the user is valid
 			const userIsValid = await user.isValid();
 			if (!userIsValid) {
-				throw new BadRequestError('Incorrect / invalid parameters supplied');
+				throw new BadRequestError(
+					'Incorrect / invalid parameters supplied'
+				);
 			}
 			// Encrypt the users password
 			await user.encryptUserPassword();
@@ -248,7 +258,9 @@ export default class UserService extends BaseService {
 			// Check if the user is valid
 			const userIsValid = await user.isValid();
 			if (!userIsValid || !User.validId(user.id)) {
-				throw new BadRequestError('Incorrect / invalid parameters supplied');
+				throw new BadRequestError(
+					'Incorrect / invalid parameters supplied'
+				);
 			}
 			// Do not allow the password to be updated with this method
 			delete user.password;
@@ -266,7 +278,10 @@ export default class UserService extends BaseService {
 		}
 	}
 
-	public async changePassword(user: User, newPassword: string): Promise<User> {
+	public async changePassword(
+		user: User,
+		newPassword: string
+	): Promise<User> {
 		try {
 			// Check if the user is valid
 			const userIsValid = await user.isValid();
@@ -276,7 +291,9 @@ export default class UserService extends BaseService {
 				!user.password ||
 				!newPassword
 			) {
-				throw new BadRequestError('Incorrect / invalid parameters supplied');
+				throw new BadRequestError(
+					'Incorrect / invalid parameters supplied'
+				);
 			}
 
 			// Fetch the user from the database
@@ -318,9 +335,13 @@ export default class UserService extends BaseService {
 	public async delete(id: number): Promise<User> {
 		try {
 			if (!User.validId(id)) {
-				throw new BadRequestError('Incorrect / invalid parameters supplied');
+				throw new BadRequestError(
+					'Incorrect / invalid parameters supplied'
+				);
 			}
-			const userResult: User = await this.userRepository.deleteOneWithId(id);
+			const userResult: User = await this.userRepository.deleteOneWithId(
+				id
+			);
 			return userResult.sanitize();
 		} catch (error) {
 			if (error instanceof HttpError) {
