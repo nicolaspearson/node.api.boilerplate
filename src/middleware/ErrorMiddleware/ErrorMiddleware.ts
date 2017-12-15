@@ -114,6 +114,15 @@ export class ErrorMiddleware implements KoaMiddlewareInterface {
 					httpError = error;
 				}
 			}
+			if (
+				httpError &&
+				httpError.detail &&
+				String(httpError.detail).includes('ER_DUP_ENTRY: ')
+			) {
+				httpError = new Exceptions.ConflictError(
+					httpError.detail.replace('ER_DUP_ENTRY: ', '')
+				);
+			}
 			ctx.status = httpError.status;
 			try {
 				ctx.body = JSON.stringify(httpError);
