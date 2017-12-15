@@ -63,9 +63,13 @@ export default class TemplateService extends BaseService {
 	public async findOneById(id: number): Promise<Template> {
 		try {
 			if (!Template.validId(id)) {
-				throw new BadRequestError('Incorrect / invalid parameters supplied');
+				throw new BadRequestError(
+					'Incorrect / invalid parameters supplied'
+				);
 			}
-			const templateResult = await this.templateRepository.findOneById(id);
+			const templateResult = await this.templateRepository.findOneById(
+				id
+			);
 			return templateResult.sanitize();
 		} catch (error) {
 			if (error instanceof HttpError) {
@@ -101,7 +105,9 @@ export default class TemplateService extends BaseService {
 			if (templateResult) {
 				return templateResult.sanitize();
 			} else {
-				throw new NotFoundError('The requested object could not be found');
+				throw new NotFoundError(
+					'The requested object could not be found'
+				);
 			}
 		} catch (error) {
 			if (error instanceof HttpError) {
@@ -148,7 +154,9 @@ export default class TemplateService extends BaseService {
 			// Check if the template is valid
 			const templateIsValid = await template.isValid();
 			if (!templateIsValid) {
-				throw new BadRequestError('Incorrect / invalid parameters supplied');
+				throw new BadRequestError(
+					'Incorrect / invalid parameters supplied'
+				);
 			}
 			// Save the template to the database
 			const templateResult = await this.templateRepository.save(template);
@@ -166,7 +174,9 @@ export default class TemplateService extends BaseService {
 			// Check if the template is valid
 			const templateIsValid = await template.isValid();
 			if (!templateIsValid || !Template.validId(template.id)) {
-				throw new BadRequestError('Incorrect / invalid parameters supplied');
+				throw new BadRequestError(
+					'Incorrect / invalid parameters supplied'
+				);
 			}
 			// Update the template on the database
 			const templateResult = await this.templateRepository.updateOneById(
@@ -185,9 +195,13 @@ export default class TemplateService extends BaseService {
 	public async delete(id: number): Promise<Template> {
 		try {
 			if (!Template.validId(id)) {
-				throw new BadRequestError('Incorrect / invalid parameters supplied');
+				throw new BadRequestError(
+					'Incorrect / invalid parameters supplied'
+				);
 			}
-			const templateResult = await this.templateRepository.deleteOneWithId(id);
+			const templateResult = await this.templateRepository.deleteOneWithId(
+				id
+			);
 			return templateResult.sanitize();
 		} catch (error) {
 			if (error instanceof HttpError) {
@@ -206,6 +220,11 @@ export default class TemplateService extends BaseService {
 			const deleteTemplateList: Template[] = await this.findManyWithQueryBuilder(
 				filter
 			);
+			if (deleteTemplateList.length < 1) {
+				throw new NotFoundError(
+					'No records matching the specified criteria were found'
+				);
+			}
 			const idList: number[] = [];
 			const sanitizedTemplateList = deleteTemplateList.map(
 				(template: Template) => {
