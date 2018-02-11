@@ -33,7 +33,8 @@ export class Master {
 
 			// Choose a worker
 			const index =
-				stringHash(connection.remoteAddress || '') % options.concurrency;
+				stringHash(connection.remoteAddress || '') %
+				options.concurrency;
 			this.workers.entrust(index, connection, options);
 		});
 	}
@@ -49,13 +50,18 @@ export class Master {
 		// Stop listening for new connections
 		this.serverInstance.close((error: any) => {
 			if (error) {
-				this.appLogger.winston.error(`Master: Error stopping server`, error);
+				this.appLogger.winston.error(
+					`Master: Error stopping server`,
+					error
+				);
 			} else {
 				return callback();
 			}
 		});
 
-		this.appLogger.winston.debug(`Master: Destroying Active Connections...`);
+		this.appLogger.winston.debug(
+			`Master: Destroying Active Connections...`
+		);
 		Object.keys(this.connections).forEach(signature => {
 			this.connections[signature].destroy();
 		});
@@ -82,7 +88,9 @@ export class Master {
 	public start(options: IStickyClusterOptions) {
 		this.appLogger.winston.debug(`Master: Start`);
 		this.serverStart(() => {
-			this.appLogger.winston.debug(`Master: Started on Port: ${options.port}`);
+			this.appLogger.winston.debug(
+				`Master: Started on Port: ${options.port}`
+			);
 			this.appLogger.winston.debug(`Master: Starting Workers`);
 			this.workers.start(options);
 			process.once('SIGINT', () => {

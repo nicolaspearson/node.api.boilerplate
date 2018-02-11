@@ -55,8 +55,8 @@ dist/**/*
 .env
 
 # Data files
-src/db/db-data/*
-!src/db/db-data/.gitkeep
+db/db-data/*
+!db/db-data/.gitkeep
 
 # IDE files
 .idea/**/*

@@ -62,9 +62,7 @@ async function processPrompt(answers: inquirer.Answers) {
 	}
 	const titleCaseModuleName = `${utils.firstToUpperCase(moduleName)}`;
 	console.log(
-		`\nRemember to create the database table for the new entity: ${
-			titleCaseModuleName
-		}\n`
+		`\nRemember to create the database table for the new entity: ${titleCaseModuleName}\n`
 	);
 }
 

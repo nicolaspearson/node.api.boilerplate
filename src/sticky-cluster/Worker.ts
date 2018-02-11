@@ -9,7 +9,7 @@ import { IStickyClusterOptions } from './IStickyClusterOptions';
 export class Worker {
 	@Inject() private appLogger: AppLogger;
 
-	private ids: string[] = [];
+	private ids: number[] = [];
 
 	private running: boolean = false;
 
@@ -25,7 +25,9 @@ export class Worker {
 		const worker = cluster.fork(workerEnv);
 		this.ids[index] = worker.id;
 		this.appLogger.winston.debug(
-			`Worker: Created Worker With ID: ${worker.id} maps to Index ${index}`
+			`Worker: Created Worker With ID: ${
+				worker.id
+			} maps to Index ${index}`
 		);
 
 		// Restart worker on exit
@@ -48,7 +50,9 @@ export class Worker {
 			// Ignore all messages except those received from the master
 			if (message === `${options.prefix}:connection`) {
 				this.appLogger.winston.debug(
-					`Worker: Received Connection From : ${connection.remoteAddress}`
+					`Worker: Received Connection From : ${
+						connection.remoteAddress
+					}`
 				);
 
 				// Emulate a connection event on the server by emitting
@@ -77,9 +81,9 @@ export class Worker {
 			const worker: cluster.Worker | undefined = cluster.workers[id];
 			if (worker) {
 				this.appLogger.winston.debug(
-					`Worker: Entrust connection ${connection.remoteAddress} to worker: ${
-						id
-					}`
+					`Worker: Entrust connection ${
+						connection.remoteAddress
+					} to worker: ${id}`
 				);
 				worker.send(`${options.prefix}:connection`, connection);
 			}

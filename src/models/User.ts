@@ -30,6 +30,8 @@ import { BadRequestError, HttpError } from '../exceptions';
  *         type: string
  *       password:
  *         type: string
+ *       enabled:
+ *         type: boolean
  *       lastLoggedInAt:
  *         type: string
  *
@@ -42,7 +44,13 @@ import { BadRequestError, HttpError } from '../exceptions';
  *         type: string
  *       emailAddress:
  *         type: string
+ *       enabled:
+ *         type: boolean
  *       lastLoggedInAt:
+ *         type: string
+ *       createdAt:
+ *         type: string
+ *       updatedAt:
  *         type: string
  */
 @Entity()
@@ -75,6 +83,9 @@ export default class User {
 	})
 	public password: string;
 
+	@Column({ name: 'enabled' })
+	public enabled: boolean;
+
 	@Column({ name: 'last_logged_in_at' })
 	public lastLoggedInAt: Date;
 
@@ -89,6 +100,7 @@ export default class User {
 		username?: string;
 		emailAddress?: string;
 		password?: string;
+		enabled?: boolean;
 		lastLoggedInAt?: Date;
 	}) {
 		const newUser = new User();
@@ -103,6 +115,9 @@ export default class User {
 		}
 		if (obj.password) {
 			newUser.password = obj.password;
+		}
+		if (obj.enabled) {
+			newUser.enabled = obj.enabled;
 		}
 		if (obj.lastLoggedInAt) {
 			newUser.lastLoggedInAt = obj.lastLoggedInAt;
@@ -123,6 +138,9 @@ export default class User {
 		}
 		if (obj.password) {
 			newUser.password = obj.password;
+		}
+		if (obj.enabled) {
+			newUser.enabled = obj.enabled;
 		}
 		if (obj.lastLoggedInAt) {
 			newUser.lastLoggedInAt = obj.lastLoggedInAt;
@@ -189,7 +207,9 @@ export default class User {
 
 	public static getGenericValidationLengthMessage(args: ValidationArguments) {
 		return (
-			'Too short, minimum length is ' + args.constraints[0] + ' characters'
+			'Too short, minimum length is ' +
+			args.constraints[0] +
+			' characters'
 		);
 	}
 }

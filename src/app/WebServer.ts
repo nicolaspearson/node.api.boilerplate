@@ -2,13 +2,14 @@ import 'reflect-metadata';
 import 'source-map-support/register';
 import 'ts-helpers';
 
+import * as cluster from 'cluster';
 import * as config from 'config';
 import * as http from 'http';
 import * as Koa from 'koa';
 import * as os from 'os';
 import { Container, Inject, Service } from 'typedi';
 
-import { HttpError } from '../exceptions/index';
+import { HttpError } from '../exceptions';
 import User from '../models/User';
 import UserService from '../services/UserService';
 import { StickyCluster } from '../sticky-cluster/StickyCluster';
@@ -39,9 +40,9 @@ export class WebServer {
 		this.host = String(config.get('server.api.host'));
 
 		// Set the api url
-		Application.apiUrl = `${config.get('server.api.protocol')}://${config.get(
-			'server.api.host'
-		)}`;
+		Application.apiUrl = `${config.get(
+			'server.api.protocol'
+		)}://${config.get('server.api.host')}`;
 
 		if (Number(config.get('server.api.port') > 999)) {
 			Application.apiUrl = `${Application.apiUrl}:${config.get(
@@ -60,21 +61,28 @@ export class WebServer {
 		const clustering: boolean = Boolean(config.get('server.cluster'));
 		if (!clustering) {
 			await this.createWebServerInstance(this.port, this.host);
-			await this.createBackgroundServices(Application.server);
+			await this.createWorkerBackgroundServices(Application.server);
 			return;
 		} else {
 			const numWorkers: number = os.cpus().length;
 			this.stickyCluster.startCluster(
+				async (callback: () => {}) => {
+					callback();
+				},
 				async (callback: (server: http.Server) => {}) => {
-					const app: Koa = await this.createWebServerInstance(this.port);
+					const app: Koa = await this.createWebServerInstance(
+						this.port
+					);
 					Application.server = http.createServer(app.callback());
 
-					await this.createBackgroundServices(Application.server);
+					await this.createWorkerBackgroundServices(
+						Application.server
+					);
 
 					callback(Application.server);
 				},
 				{
-					prefix: 'avm-sticky-cluster',
+					prefix: 'nab-sticky-cluster',
 					concurrency: numWorkers,
 					port: this.port,
 					hardShutdownDelay: 60 * 1000
@@ -121,14 +129,33 @@ export class WebServer {
 		return Application.app;
 	}
 
-	private async createBackgroundServices(server: http.Server) {
+	private async createSingleThreadedBackgroundServices() {
 		// Wait for 1 second for the web server
 		this.appLogger.winston.debug(
-			`WebServer: Initializing background services in 1 second...`
+			`WebServer: Initializing single threaded background services in 1 second...`
+		);
+		await SystemUtils.sleep(1000);
+	}
+
+	private async createWorkerBackgroundServices(server: http.Server) {
+		// Wait for 1 second for the web server
+		this.appLogger.winston.debug(
+			`WebServer: Initializing worker background services in 1 second...`
 		);
 		await SystemUtils.sleep(1000);
 		const user: User | undefined = await this.createUser();
 		await this.startSockets(server, user);
+
+		// Start single threaded background services on the 1st worker
+		if (
+			Boolean(config.get('server.cluster')) === false ||
+			(cluster &&
+				cluster.worker &&
+				cluster.worker.id &&
+				Number(cluster.worker.id) === 1)
+		) {
+			this.createSingleThreadedBackgroundServices();
+		}
 	}
 
 	private async createUser(): Promise<User | undefined> {
@@ -159,7 +186,9 @@ export class WebServer {
 		} catch (error) {
 			if (error instanceof HttpError) {
 				if (String(error.detail).includes('ER_DUP_ENTRY')) {
-					this.appLogger.winston.error(`WebServer: User Already Inserted`);
+					this.appLogger.winston.error(
+						`WebServer: User Already Inserted`
+					);
 				} else {
 					let parsedError: any = error;
 					if (error && error.detail) {
@@ -167,7 +196,9 @@ export class WebServer {
 					}
 					this.appLogger.winston.error(
 						`WebServer: User Not Inserted. Local Error`,
-						parsedError && parsedError.detail && parsedError.detail.config
+						parsedError &&
+						parsedError.detail &&
+						parsedError.detail.config
 							? parsedError.detail.config
 							: parsedError
 					);

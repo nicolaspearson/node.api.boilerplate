@@ -49,13 +49,8 @@ export class Sockets {
 		return Sockets.socketClient;
 	}
 
-	public async setupSockets(
-		server: Server | undefined
-	): Promise<SocketIO.Server> {
-		Sockets.socketServer = ioServer(
-			server || config.get('server.socket.port'),
-			this.getSocketServerOptions()
-		);
+	public async setupSockets(server: Server): Promise<SocketIO.Server> {
+		Sockets.socketServer = ioServer(server, this.getSocketServerOptions());
 
 		const jwtSecret: string = config.get('server.auth.jwtSecret');
 
@@ -73,8 +68,13 @@ export class Sockets {
 								await this.userService.authorize(
 									new Token(socket.handshake.query.token)
 								);
+								socket.emit('authenticated');
 							} catch (error) {
-								this.appLogger.winston.error(`Sockets: Auth Error`, error);
+								this.appLogger.winston.error(
+									`Sockets: Auth Error`,
+									error
+								);
+								socket.emit('unauthorized', error);
 								return next(new Error('Authentication error'));
 							}
 							next();
@@ -83,11 +83,15 @@ export class Sockets {
 				}
 			})
 			.on('connection', socket => {
-				this.appLogger.winston.debug(`Sockets: Authenticated: ${socket.id}`);
+				this.appLogger.winston.debug(
+					`Sockets: Authenticated: ${socket.id}`
+				);
 				// Bind applicable subscribers to the socket
 				defaultMetadataRegistry.collectEventsHandlers.forEach(
 					(eventHandler: any) => {
-						const eventNamesForThisHandler = Object.keys(eventHandler);
+						const eventNamesForThisHandler = Object.keys(
+							eventHandler
+						);
 						eventNamesForThisHandler.forEach(eventName => {
 							const callback = eventHandler[eventName];
 							socket.on(eventName, data => {
@@ -112,7 +116,7 @@ export class Sockets {
 	public setupSocketClient(user: User | undefined) {
 		const socketServerUrl = `http://${config.get(
 			'server.socket.host'
-		)}:${config.get('server.socket.port')}`;
+		)}:${config.get('server.api.port')}`;
 		const socketServerPath: string = config.get('server.socket.path');
 
 		const token: Token = new Token();
@@ -127,7 +131,9 @@ export class Sockets {
 			Sockets.socketClient
 				.emit('authenticate', { token })
 				.on('authenticated', () => {
-					this.appLogger.winston.debug('Sockets: Client: Authenticated');
+					this.appLogger.winston.debug(
+						'Sockets: Client: Authenticated'
+					);
 				})
 				.on('unauthorized', (msg: any) => {
 					this.appLogger.winston.error(`Sockets: Unauthorized`, msg);
@@ -138,9 +144,7 @@ export class Sockets {
 			});
 
 			Sockets.socketClient.emit('started', {
-				message: `Socket server is listening on: ${socketServerUrl}${
-					socketServerPath
-				}`
+				message: `Socket server is listening on: ${socketServerUrl}${socketServerPath}`
 			});
 		});
 	}

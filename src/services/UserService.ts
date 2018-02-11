@@ -40,14 +40,35 @@ export default class UserService extends BaseService {
 		}
 	}
 
-	public async login(username: string, password: string): Promise<object> {
+	public async login(
+		username: string,
+		password: string,
+		emailAddress?: string
+	): Promise<object> {
 		try {
 			// Fetch the user from the database
-			const userResult: User = await this.userRepository.findOneByFilter({
-				where: {
-					username
+			let userResult: User;
+			try {
+				if (emailAddress) {
+					// Use the email address if provided
+					userResult = await this.userRepository.findOneByFilter({
+						where: {
+							email_address: emailAddress
+						}
+					});
+				} else if (username) {
+					// Fallback to the username
+					userResult = await this.userRepository.findOneByFilter({
+						where: {
+							username
+						}
+					});
+				} else {
+					throw new UnauthorizedError('Invalid credentials supplied');
 				}
-			});
+			} catch (error) {
+				throw new UnauthorizedError('Invalid credentials supplied');
+			}
 
 			// Validate the input parameters
 			const userValidate: User = User.cloneUser(userResult);
@@ -57,7 +78,7 @@ export default class UserService extends BaseService {
 			// Validate the provided password
 			const valid = await userResult.validatePassword(password);
 			if (!valid) {
-				throw new UnauthorizedError('Invalid password');
+				throw new UnauthorizedError('Invalid credentials supplied');
 			}
 
 			// Create a token

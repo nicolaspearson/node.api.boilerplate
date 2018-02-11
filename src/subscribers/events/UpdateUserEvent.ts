@@ -37,7 +37,7 @@ export class UpdateUserEvent extends BaseEvent implements ISocketEvent {
 				);
 
 				if (action.data.user.emailAddress) {
-					user.username = action.data.user.username;
+					user.emailAddress = action.data.user.emailAddress;
 				}
 
 				if (action.data.user.emailAddress) {
@@ -48,7 +48,9 @@ export class UpdateUserEvent extends BaseEvent implements ISocketEvent {
 				const userResult = await this.userService.update(user);
 				this.appLogger.winston.log(
 					'socket',
-					`${UpdateUserEvent.name}: User Updated: ${JSON.stringify(userResult)}`
+					`${UpdateUserEvent.name}: User Updated: ${JSON.stringify(
+						userResult
+					)}`
 				);
 
 				// Inform the client that the user has been updated
@@ -67,7 +69,10 @@ export class UpdateUserEvent extends BaseEvent implements ISocketEvent {
 		// Inform the client the user has not been updated
 		this.socketServer.to(clientId).emit('action', {
 			type: '/response/user_update_error',
-			data: action && action.data && action.data.user ? action.data.user : {}
+			data:
+				action && action.data && action.data.user
+					? action.data.user
+					: {}
 		});
 	}
 }

@@ -4,7 +4,14 @@ import {
 	ValidationArguments,
 	ValidationError
 } from 'class-validator';
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+	Column,
+	CreateDateColumn,
+	Entity,
+	PrimaryGeneratedColumn,
+	UpdateDateColumn
+} from 'typeorm';
+
 import { BadRequestError, HttpError } from '../../exceptions';
 
 /**
@@ -15,7 +22,7 @@ import { BadRequestError, HttpError } from '../../exceptions';
  *     properties:
  *       id:
  *         type: number
- *       description:
+ *       name:
  *         type: string
  *
  *   TemplateResponse:
@@ -23,7 +30,11 @@ import { BadRequestError, HttpError } from '../../exceptions';
  *     properties:
  *       id:
  *         type: number
- *       description:
+ *       name:
+ *         type: string
+ *       createdAt:
+ *         type: string
+ *       updatedAt:
  *         type: string
  */
 @Entity()
@@ -31,21 +42,27 @@ export default class Template {
 	@PrimaryGeneratedColumn({ name: 'id' })
 	public id: number;
 
-	@Column({ name: 'description' })
+	@Column({ name: 'name' })
 	@Length(1, 255, {
 		message: (args: ValidationArguments) => {
 			return Template.getGenericValidationLengthMessage(args);
 		}
 	})
-	public description: string;
+	public name: string;
 
-	public static newTemplate(obj: { id?: number; description?: string }) {
+	@CreateDateColumn({ name: 'created_at' })
+	public createdAt: Date;
+
+	@UpdateDateColumn({ name: 'updated_at' })
+	public updatedAt: Date;
+
+	public static newTemplate(obj: { id?: number; name?: string }) {
 		const newTemplate = new Template();
 		if (obj.id) {
 			newTemplate.id = obj.id;
 		}
-		if (obj.description) {
-			newTemplate.description = obj.description;
+		if (obj.name) {
+			newTemplate.name = obj.name;
 		}
 		return newTemplate;
 	}
@@ -55,8 +72,8 @@ export default class Template {
 		if (obj.id) {
 			newTemplate.id = obj.id;
 		}
-		if (obj.description) {
-			newTemplate.description = obj.description;
+		if (obj.name) {
+			newTemplate.name = obj.name;
 		}
 		return newTemplate;
 	}
@@ -92,7 +109,9 @@ export default class Template {
 
 	public static getGenericValidationLengthMessage(args: ValidationArguments) {
 		return (
-			'Too short, minimum length is ' + args.constraints[0] + ' characters'
+			'Too short, minimum length is ' +
+			args.constraints[0] +
+			' characters'
 		);
 	}
 }

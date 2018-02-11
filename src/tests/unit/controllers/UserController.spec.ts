@@ -47,6 +47,7 @@ describe('UserController', () => {
 			const response: any = await controllerUnderTest.loginUser(
 				accessToken,
 				loginUsername,
+				'',
 				loginPassword
 			);
 			const token: Token = response.token;
@@ -61,7 +62,9 @@ describe('UserController', () => {
 				Promise.resolve(userWithId)
 			);
 
-			const fetchedUser: User = await controllerUnderTest.findUserById(testId);
+			const fetchedUser: User = await controllerUnderTest.findUserById(
+				testId
+			);
 
 			verify(userService.findOneById(testId)).called();
 			expect(fetchedUser).to.equal(userWithId);
@@ -136,7 +139,9 @@ describe('UserController', () => {
 			};
 			const requestUser: User = User.newUser(requestBody);
 
-			when(userService.delete(testId)).thenReturn(Promise.resolve(userWithId));
+			when(userService.delete(testId)).thenReturn(
+				Promise.resolve(userWithId)
+			);
 
 			await controllerUnderTest.deleteUser(testId);
 

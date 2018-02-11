@@ -375,4 +375,72 @@ export default class TemplateController {
 	): Promise<Template[]> {
 		return await this.templateService.deleteByFilter(limit, terms);
 	}
+
+	/**
+	 * @swagger
+	 * /templates/search:
+	 *   post:
+	 *     summary: Search for Template object/s using the provided filter
+	 *     description: Search for one or many Template object/s that match the provided filter
+	 *     operationId: searchTemplates
+	 *     tags: [template]
+	 *     produces:
+	 *       - application/json
+	 *     parameters:
+	 *       - name: Authorization
+	 *         in: header
+	 *         description: jwt access token
+	 *         required: true
+	 *         type: string
+	 *       - name: body
+	 *         in: body
+	 *         description: the request body
+	 *         schema:
+	 *           required:
+	 *             - terms
+	 *             - limit
+	 *           type: object
+	 *           properties:
+	 *             limit:
+	 *               description: the number of records to fetch, 0 for all
+	 *               type: number
+	 *             terms:
+	 *               description: an array of search terms
+	 *               type: array
+	 *               items:
+	 *                 $ref: '#/definitions/SearchTermRequest'
+	 *     responses:
+	 *       200:
+	 *         description: An array of found Template object/s
+	 *         schema:
+	 *           type: array
+	 *           items:
+	 *             $ref: '#/definitions/TemplateResponse'
+	 *       400:
+	 *         $ref: '#/responses/BadRequest'
+	 *       401:
+	 *         $ref: '#/responses/Unauthorized'
+	 *       403:
+	 *         $ref: '#/responses/Forbidden'
+	 *       404:
+	 *         $ref: '#/responses/NotFound'
+	 *       405:
+	 *         $ref: '#/responses/MethodNotAllowed'
+	 *       406:
+	 *         $ref: '#/responses/NotAcceptable'
+	 *       500:
+	 *         $ref: '#/responses/InternalServerError'
+	 *       504:
+	 *         $ref: '#/responses/GatewayTimeout'
+	 *       default:
+	 *         $ref: '#/responses/DefaultError'
+	 */
+	@Post('/templates/search')
+	@Authorized()
+	public async searchTemplates(
+		@BodyParam('limit') limit: number,
+		@BodyParam('terms') terms: SearchTerm[]
+	): Promise<Template[]> {
+		return await this.templateService.search(limit, terms);
+	}
 }

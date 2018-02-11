@@ -68,7 +68,9 @@ export default abstract class BaseRepository<T> {
 			this.getRepository().find(options)
 		);
 		if (!records) {
-			throw new NotFoundError(`The requested record was not found`);
+			throw new NotFoundError(
+				`${this.entityName}: The requested record was not found`
+			);
 		}
 		return records;
 	}
@@ -81,7 +83,9 @@ export default abstract class BaseRepository<T> {
 			this.getRepository().findOneById(id, options)
 		);
 		if (!record) {
-			throw new NotFoundError(`The requested record was not found: ${id}`);
+			throw new NotFoundError(
+				`${this.entityName}: The requested record was not found: ${id}`
+			);
 		}
 		return record;
 	}
@@ -91,15 +95,27 @@ export default abstract class BaseRepository<T> {
 			this.getRepository().findOne(options)
 		);
 		if (!record) {
-			throw new NotFoundError(`The requested record was not found`);
+			throw new NotFoundError(
+				`${this.entityName}: The requested record was not found`
+			);
 		}
 		return record;
 	}
 
 	public async save(record: T, options?: SaveOptions): Promise<T> {
-		return await this.executeRepositoryFunction(
+		const result: any = await this.executeRepositoryFunction(
 			this.getRepository().save(record, options)
 		);
+		if (!result) {
+			throw new NotFoundError(
+				`${this.entityName}: The record was not saved: ${record}`
+			);
+		}
+		if (result.id) {
+			// Use find to automatically resolve eager relations
+			return this.findOneById(result.id);
+		}
+		return result;
 	}
 
 	public async updateOneById(
@@ -109,12 +125,15 @@ export default abstract class BaseRepository<T> {
 	): Promise<T> {
 		const foundRecord = await this.findOneById(id);
 		if (!foundRecord) {
-			throw new NotFoundError(`The requested record was not found: ${id}`);
+			throw new NotFoundError(
+				`${this.entityName}: The requested record was not found: ${id}`
+			);
 		}
 		await this.executeRepositoryFunction(
 			this.getRepository().updateById(id, record, options)
 		);
-		return record;
+		// Use find to automatically resolve eager relations
+		return this.findOneById(id);
 	}
 
 	public async delete(record: T, options?: RemoveOptions) {
@@ -130,7 +149,9 @@ export default abstract class BaseRepository<T> {
 	): Promise<T> {
 		const record = await this.findOneById(id, findOptions);
 		if (!record) {
-			throw new NotFoundError(`The requested record was not found: ${id}`);
+			throw new NotFoundError(
+				`${this.entityName}: The requested record was not found: ${id}`
+			);
 		}
 		return await this.delete(record, deleteOptions);
 	}

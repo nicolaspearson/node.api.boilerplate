@@ -18,7 +18,9 @@ export class Database {
 		// Create the database connection
 		try {
 			if (!this.connection) {
-				this.connection = await createConnection(this.getConnectionOptions());
+				this.connection = await createConnection(
+					this.getConnectionOptions()
+				);
 			}
 		} catch (error) {
 			throw error;
@@ -49,7 +51,13 @@ export class Database {
 			| boolean
 			| 'all'
 			| Array<
-					'query' | 'schema' | 'error' | 'warn' | 'info' | 'log' | 'migration'
+					| 'query'
+					| 'schema'
+					| 'error'
+					| 'warn'
+					| 'info'
+					| 'log'
+					| 'migration'
 				>;
 		if (config.get('server.db.logging')) {
 			logLevel = config.get('server.db.logging');

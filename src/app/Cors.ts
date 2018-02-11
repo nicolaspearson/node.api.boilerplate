@@ -14,7 +14,9 @@ export class Cors {
 				const whitelist: string[] = config.get('server.api.whitelist');
 				const requestOrigin = req.headers.origin;
 				if (!(whitelist.indexOf(requestOrigin) > -1)) {
-					throw new UnauthorizedError(`${requestOrigin} is not a valid origin`);
+					throw new UnauthorizedError(
+						`${requestOrigin} is not a valid origin`
+					);
 				}
 				return requestOrigin;
 			},

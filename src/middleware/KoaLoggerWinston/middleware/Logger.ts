@@ -93,7 +93,9 @@ export class Logger {
 			'length'
 		];
 		this.options.reqSelect = this.options.reqSelect || [];
-		this.options.reqUnselect = this.options.reqUnselect || ['headers.cookie'];
+		this.options.reqUnselect = this.options.reqUnselect || [
+			'headers.cookie'
+		];
 		this.options.resKeys = this.options.resKeys || ['headers', 'status'];
 		this.options.resSelect = this.options.resSelect || [];
 		this.options.resUnselect = this.options.resUnselect || [];
@@ -113,19 +115,19 @@ export class Logger {
 			let koaMsgFormat =
 				'{{req.method}} {{req.url}} {{res.status}} {{res.duration}}ms';
 			if (this.options.colorize) {
-				let statusColor: chalk.ChalkChain = chalk.green;
+				let statusColor: chalk.Chalk = chalk.default.green;
 				if (meta.res.statusCode >= 500) {
-					statusColor = chalk.red;
+					statusColor = chalk.default.red;
 				} else if (meta.res.statusCode >= 400) {
-					statusColor = chalk.yellow;
+					statusColor = chalk.default.yellow;
 				} else if (meta.res.statusCode >= 300) {
-					statusColor = chalk.cyan;
+					statusColor = chalk.default.cyan;
 				}
 
 				koaMsgFormat =
-					chalk.grey('{{req.method}} {{req.url}}') +
+					chalk.default.grey('{{req.method}} {{req.url}}') +
 					statusColor(' {{res.status}} ') +
-					chalk.grey('{{res.duration}}ms');
+					chalk.default.grey('{{res.duration}}ms');
 			}
 
 			const koaTemplate = template(koaMsgFormat, {

@@ -413,7 +413,7 @@ export default class UserController {
 	 * /users/login:
 	 *   post:
 	 *     summary: Authenticates a specific user
-	 *     description: Authenticates the provided user on the database
+	 *     description: Authenticates the provided user on the database using username / email address and password
 	 *     operationId: loginUser
 	 *     tags: [user]
 	 *     consumes:
@@ -435,6 +435,9 @@ export default class UserController {
 	 *           properties:
 	 *             username:
 	 *               description: username of the user
+	 *               type: string
+	 *             emailAddress:
+	 *               description: email address of the user
 	 *               type: string
 	 *             password:
 	 *               type: string
@@ -471,7 +474,10 @@ export default class UserController {
 	@Post('/users/login')
 	public async loginUser(
 		@HeaderParam('x-access-token') accessToken: string,
-		@BodyParam('username') username: string,
+		@BodyParam('username', { required: false })
+		username: string,
+		@BodyParam('emailAddress', { required: false })
+		emailAddress: string,
 		@BodyParam('password') password: string
 	): Promise<object> {
 		if (
@@ -480,7 +486,7 @@ export default class UserController {
 		) {
 			throw new UnauthorizedError('Invalid API token');
 		}
-		return await this.userService.login(username, password);
+		return await this.userService.login(username, password, emailAddress);
 	}
 
 	/**

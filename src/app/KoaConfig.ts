@@ -77,7 +77,10 @@ export class KoaConfig {
 				return await this.checkCurrentUser(action);
 			},
 			classTransformer: true,
-			controllers: [path.resolve('dist/controllers/**/*.js')],
+			controllers: [
+				path.resolve('dist/controllers/**/*.js'),
+				path.resolve('dist/cm-telecom/controllers/**/*.js')
+			],
 			defaultErrorHandler: false,
 			middlewares: [ErrorMiddleware, SuccessMiddleware],
 			routePrefix: config.get('server.api.basePath')

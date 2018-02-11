@@ -16,12 +16,14 @@ export class StickyCluster {
 	@Inject() private worker: Worker;
 
 	public startCluster(
-		startFunction: any,
+		masterStartFunction: any,
+		workerStartFunction: any,
 		clusterOptions: IStickyClusterOptions
 	) {
 		const options: IStickyClusterOptions = {
 			prefix: clusterOptions.prefix || 'sticky-cluster:',
-			concurrency: clusterOptions.concurrency || require('os').cpus().length,
+			concurrency:
+				clusterOptions.concurrency || require('os').cpus().length,
 			port: clusterOptions.port || 3000,
 			hardShutdownDelay: clusterOptions.hardShutdownDelay || 60 * 1000
 		};
@@ -29,9 +31,11 @@ export class StickyCluster {
 			`Sticky Cluster: Starting with options: ${JSON.stringify(options)}`
 		);
 		if (cluster.isMaster) {
-			this.master.start(options);
+			masterStartFunction(() => {
+				this.master.start(options);
+			});
 		} else if (cluster.isWorker) {
-			startFunction((server: http.Server) => {
+			workerStartFunction((server: http.Server) => {
 				this.worker.serveWorkers(server, options);
 			});
 		}

@@ -20,14 +20,20 @@ export class SocketEventSubscriber {
 
 	@On('started')
 	public onSocketServerStarted(data: any) {
-		this.appLogger.winston.log('socket', `Socket Client ID: ${data.socket.id}`);
+		this.appLogger.winston.log(
+			'socket',
+			`Socket Client ID: ${data.socket.id}`
+		);
 		this.appLogger.winston.log('socket', data.message);
 	}
 
 	@On('action')
 	public onSocketServerAction(action: { type: string; data: any }) {
 		if (!action || !action.type || !action.data) {
-			this.appLogger.winston.error(`Error: Unable to process action`, action);
+			this.appLogger.winston.error(
+				`Error: Unable to process action`,
+				action
+			);
 		}
 		try {
 			const eventData: EventData = deserialize(
@@ -45,7 +51,10 @@ export class SocketEventSubscriber {
 				'socket',
 				`Action Received: ${JSON.stringify(eventAction)}`
 			);
-			this.appLogger.winston.log('socket', `Socket Client ID: ${clientId}`);
+			this.appLogger.winston.log(
+				'socket',
+				`Socket Client ID: ${clientId}`
+			);
 			switch (eventAction.type) {
 				case 'server/update_user':
 					this.updateUserEvent.handleAction(eventAction, clientId);
@@ -54,7 +63,10 @@ export class SocketEventSubscriber {
 					break;
 			}
 		} catch (error) {
-			this.appLogger.winston.error(`Error: Unable to process action`, error);
+			this.appLogger.winston.error(
+				`Error: Unable to process action`,
+				error
+			);
 		}
 	}
 }

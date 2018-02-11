@@ -38,13 +38,16 @@ export default class AppLogger {
 								? `[Worker-ID: ${cluster.worker.id}] - `
 								: '[Main-Instance] - ';
 						return (
-							moment(options.timestamp()).format('YYYY/MM/DD HH:mm:ss') +
+							moment(options.timestamp()).format(
+								'YYYY/MM/DD HH:mm:ss'
+							) +
 							' - ' +
 							options.level.toUpperCase() +
 							` - ${workerName}` +
 							(options.message ? options.message : '') +
 							(options.meta && Object.keys(options.meta).length
-								? '\n\t' + JSON.stringify(options.meta, undefined, 2)
+								? '\n\t' +
+									JSON.stringify(options.meta, undefined, 2)
 								: '')
 						);
 					},
@@ -60,7 +63,9 @@ export default class AppLogger {
 					prettyPrint: true,
 					align: true,
 					name: 'all-file',
-					filename: `${config.get('server.logs.dir')}/app-api-all.log`,
+					filename: `${config.get(
+						'server.logs.dir'
+					)}/app-api-all.log`,
 					level: 'debug'
 				}),
 				new winston.transports.File({
@@ -69,7 +74,9 @@ export default class AppLogger {
 					prettyPrint: true,
 					align: true,
 					name: 'socket-file',
-					filename: `${config.get('server.logs.dir')}/app-api-socket.log`,
+					filename: `${config.get(
+						'server.logs.dir'
+					)}/app-api-socket.log`,
 					level: 'socket'
 				}),
 				new winston.transports.File({
@@ -78,7 +85,9 @@ export default class AppLogger {
 					prettyPrint: true,
 					align: true,
 					name: 'error-file',
-					filename: `${config.get('server.logs.dir')}/app-api-error.log`,
+					filename: `${config.get(
+						'server.logs.dir'
+					)}/app-api-error.log`,
 					level: 'error',
 					handleExceptions: true,
 					humanReadableUnhandledException: true

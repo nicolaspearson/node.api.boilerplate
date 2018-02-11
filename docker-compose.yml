@@ -8,8 +8,8 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - ./src/db/db-scripts:/docker-entrypoint-initdb.d
-      - ./src/db/db-data:/var/lib/mysql
+      - ./db/db-scripts:/docker-entrypoint-initdb.d
+      - ./db/db-data:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=nab

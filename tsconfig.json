@@ -27,7 +27,8 @@
 		] /* List of folders to include type definitions from. */,
 		"experimentalDecorators": true /* Enables experimental support for ES7 decorators. */,
 		"emitDecoratorMetadata": true /* Enables experimental support for emitting type metadata for decorators. */,
-		"allowJs": true
+		"allowJs": true,
+		"strictPropertyInitialization": false /* This flag performs checks to ensure that each instance property of a class gets initialized in the constructor body, or by a property initializer. */
 	},
 	"include": ["src/**/*"],
 	"exclude": ["node_modules", "scripts", "test"]
