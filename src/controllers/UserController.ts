@@ -546,4 +546,238 @@ export default class UserController {
 		}
 		throw new UnauthorizedError('Invalid Token');
 	}
+
+	/**
+	 * @swagger
+	 * /users/forgotPassword:
+	 *   post:
+	 *     summary: Allow a user to reset their password
+	 *     description: Allows an existing user to reset their password
+	 *     operationId: forgotPassword
+	 *     tags: [user]
+	 *     consumes:
+	 *       - application/json
+	 *     produces:
+	 *       - application/json
+	 *     parameters:
+	 *       - name: x-access-token
+	 *         in: header
+	 *         description: api access token
+	 *         required: true
+	 *         type: string
+	 *       - name: body
+	 *         in: body
+	 *         required: true
+	 *         schema:
+	 *           type: object
+	 *           properties:
+	 *             emailAddress:
+	 *               description: the user's email address
+	 *               type: string
+	 *     responses:
+	 *       200:
+	 *         description: The result of the request
+	 *         schema:
+	 *           type: object
+	 *           properties:
+	 *             result:
+	 *               description: whether or not a reset link was sent to the provided email address
+	 *               type: string
+	 *       400:
+	 *         $ref: '#/responses/BadRequest'
+	 *       401:
+	 *         $ref: '#/responses/Unauthorized'
+	 *       403:
+	 *         $ref: '#/responses/Forbidden'
+	 *       404:
+	 *         $ref: '#/responses/NotFound'
+	 *       405:
+	 *         $ref: '#/responses/MethodNotAllowed'
+	 *       406:
+	 *         $ref: '#/responses/NotAcceptable'
+	 *       500:
+	 *         $ref: '#/responses/InternalServerError'
+	 *       504:
+	 *         $ref: '#/responses/GatewayTimeout'
+	 *       default:
+	 *         $ref: '#/responses/DefaultError'
+	 */
+	@Post('/users/forgotPassword')
+	public async forgotPassword(
+		@HeaderParam('x-access-token') accessToken: string,
+		@BodyParam('emailAddress') emailAddress: string
+	): Promise<object> {
+		if (
+			!accessToken ||
+			!(accessToken === config.get('server.auth.accessToken'))
+		) {
+			throw new UnauthorizedError('Invalid API token');
+		}
+		if (!emailAddress) {
+			throw new BadRequestError(
+				'The required parameters were not supplied.'
+			);
+		}
+		return await this.userService.forgotPassword(emailAddress);
+	}
+
+	/**
+	 * @swagger
+	 * /users/resetPassword:
+	 *   post:
+	 *     summary: Allow a user to reset their password
+	 *     description: Allows an existing user to reset their password
+	 *     operationId: resetPassword
+	 *     tags: [user]
+	 *     consumes:
+	 *       - application/json
+	 *     produces:
+	 *       - application/json
+	 *     parameters:
+	 *       - name: x-access-token
+	 *         in: header
+	 *         description: api access token
+	 *         required: true
+	 *         type: string
+	 *       - name: body
+	 *         in: body
+	 *         required: true
+	 *         schema:
+	 *           type: object
+	 *           properties:
+	 *             resetToken:
+	 *               description: the password reset token
+	 *               type: string
+	 *     responses:
+	 *       200:
+	 *         description: The user who requested a password reset
+	 *         schema:
+	 *           type: object
+	 *           properties:
+	 *             user:
+	 *               $ref: '#/definitions/UserResponse'
+	 *       400:
+	 *         $ref: '#/responses/BadRequest'
+	 *       401:
+	 *         $ref: '#/responses/Unauthorized'
+	 *       403:
+	 *         $ref: '#/responses/Forbidden'
+	 *       404:
+	 *         $ref: '#/responses/NotFound'
+	 *       405:
+	 *         $ref: '#/responses/MethodNotAllowed'
+	 *       406:
+	 *         $ref: '#/responses/NotAcceptable'
+	 *       500:
+	 *         $ref: '#/responses/InternalServerError'
+	 *       504:
+	 *         $ref: '#/responses/GatewayTimeout'
+	 *       default:
+	 *         $ref: '#/responses/DefaultError'
+	 */
+	@Post('/users/resetPassword')
+	public async resetPassword(
+		@HeaderParam('x-access-token') accessToken: string,
+		@BodyParam('resetToken') resetToken: string
+	): Promise<User> {
+		if (
+			!accessToken ||
+			!(accessToken === config.get('server.auth.accessToken'))
+		) {
+			throw new UnauthorizedError('Invalid API token');
+		}
+		if (!resetToken) {
+			throw new BadRequestError(
+				'The required parameters were not supplied.'
+			);
+		}
+		return await this.userService.resetPassword(resetToken);
+	}
+
+	/**
+	 * @swagger
+	 * /users/newPassword:
+	 *   post:
+	 *     summary: Allows a user to create a new password
+	 *     description: Allows an existing user to create a new password
+	 *     operationId: newPassword
+	 *     tags: [user]
+	 *     consumes:
+	 *       - application/json
+	 *     produces:
+	 *       - application/json
+	 *     parameters:
+	 *       - name: x-access-token
+	 *         in: header
+	 *         description: api access token
+	 *         required: true
+	 *         type: string
+	 *       - name: body
+	 *         in: body
+	 *         required: true
+	 *         schema:
+	 *           type: object
+	 *           properties:
+	 *             newPassword:
+	 *               description: the user's new password
+	 *               type: string
+	 *             user:
+	 *               $ref: '#/definitions/UserRequest'
+	 *             resetToken:
+	 *               description: the password reset token
+	 *               type: string
+	 *     responses:
+	 *       200:
+	 *         description: The logged in user if successfully updated
+	 *         schema:
+	 *           type: object
+	 *           properties:
+	 *             user:
+	 *               $ref: '#/definitions/UserResponse'
+	 *             token:
+	 *               $ref: '#/definitions/TokenResponse'
+	 *       400:
+	 *         $ref: '#/responses/BadRequest'
+	 *       401:
+	 *         $ref: '#/responses/Unauthorized'
+	 *       403:
+	 *         $ref: '#/responses/Forbidden'
+	 *       404:
+	 *         $ref: '#/responses/NotFound'
+	 *       405:
+	 *         $ref: '#/responses/MethodNotAllowed'
+	 *       406:
+	 *         $ref: '#/responses/NotAcceptable'
+	 *       500:
+	 *         $ref: '#/responses/InternalServerError'
+	 *       504:
+	 *         $ref: '#/responses/GatewayTimeout'
+	 *       default:
+	 *         $ref: '#/responses/DefaultError'
+	 */
+	@Post('/users/newPassword')
+	public async newPassword(
+		@HeaderParam('x-access-token') accessToken: string,
+		@BodyParam('newPassword') newPassword: string,
+		@BodyParam('user', { validate: false })
+		user: User,
+		@BodyParam('resetToken') resetToken: string
+	): Promise<object> {
+		if (
+			!accessToken ||
+			!(accessToken === config.get('server.auth.accessToken'))
+		) {
+			throw new UnauthorizedError('Invalid API token');
+		}
+		if (!newPassword || !user || !resetToken) {
+			throw new BadRequestError(
+				'The required parameters were not supplied.'
+			);
+		}
+		return await this.userService.newPassword(
+			user,
+			newPassword,
+			resetToken
+		);
+	}
 }

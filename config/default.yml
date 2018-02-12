@@ -22,6 +22,11 @@ server:
     password: root
     port: 3306
     username: root
+  email:
+    sender: 'Node API Boilerplate'
+    from: 'no-reply@nab.co.za'
+  frontEnd:
+    url: 'http://localhost:4200'
   socket:
     host: localhost
     path: /api-socket

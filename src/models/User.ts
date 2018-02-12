@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import {
 	IsEmail,
+	IsOptional,
 	Length,
 	validate,
 	ValidationArguments,
@@ -81,6 +82,7 @@ export default class User {
 			return User.getGenericValidationLengthMessage(args);
 		}
 	})
+	@IsOptional()
 	public password: string;
 
 	@Column({ name: 'enabled' })
@@ -88,6 +90,12 @@ export default class User {
 
 	@Column({ name: 'last_logged_in_at' })
 	public lastLoggedInAt: Date;
+
+	@Column({ name: 'reset_password_token' })
+	public resetPasswordToken: string;
+
+	@Column({ name: 'reset_password_expires_at' })
+	public resetPasswordExpiresAt: Date;
 
 	@CreateDateColumn({ name: 'created_at' })
 	public createdAt: Date;
@@ -202,6 +210,8 @@ export default class User {
 
 	public sanitize(): User {
 		delete this.password;
+		delete this.resetPasswordToken;
+		delete this.resetPasswordExpiresAt;
 		return this;
 	}
 

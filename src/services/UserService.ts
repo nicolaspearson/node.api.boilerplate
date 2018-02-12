@@ -1,8 +1,12 @@
+import * as config from 'config';
+import * as crypto from 'crypto';
 import { JsonWebTokenError } from 'jsonwebtoken';
 import * as moment from 'moment';
+import { SentMessageInfo } from 'nodemailer';
 import { Inject } from 'typedi';
 import { FindManyOptions, FindOneOptions } from 'typeorm';
 
+import AppLogger from '../app/AppLogger';
 import {
 	BadRequestError,
 	HttpError,
@@ -10,6 +14,9 @@ import {
 	NotFoundError,
 	UnauthorizedError
 } from '../exceptions';
+import EmailStructure from '../mailer/models/EmailStructure';
+import SendMail from '../mailer/SendMail';
+import GenerateEmail from '../mailer/templates/GenerateEmail';
 import SearchTerm from '../models/internal/SearchTerm';
 import Token from '../models/internal/Token';
 import { ISearchQueryBuilderOptions } from '../models/options/ISearchQueryBuilderOptions';
@@ -18,7 +25,11 @@ import UserRepository from '../repositories/UserRepository';
 import BaseService from './BaseService';
 
 export default class UserService extends BaseService {
+	@Inject() private appLogger: AppLogger;
+
 	@Inject() private userRepository: UserRepository;
+
+	@Inject() private sendMail: SendMail;
 
 	constructor(userRepository: UserRepository) {
 		super();
@@ -53,14 +64,16 @@ export default class UserService extends BaseService {
 					// Use the email address if provided
 					userResult = await this.userRepository.findOneByFilter({
 						where: {
-							email_address: emailAddress
+							email_address: emailAddress,
+							enabled: true
 						}
 					});
 				} else if (username) {
 					// Fallback to the username
 					userResult = await this.userRepository.findOneByFilter({
 						where: {
-							username
+							username,
+							enabled: true
 						}
 					});
 				} else {
@@ -368,6 +381,186 @@ export default class UserService extends BaseService {
 				id
 			);
 			return userResult.sanitize();
+		} catch (error) {
+			if (error instanceof HttpError) {
+				throw error;
+			}
+			throw new InternalServerError(error);
+		}
+	}
+
+	public async forgotPassword(emailAddress: string): Promise<object> {
+		try {
+			const userResult: User = await this.findOneByFilter({
+				where: {
+					email_address: emailAddress
+				}
+			});
+
+			if (!userResult || !User.validId(userResult.id)) {
+				throw new BadRequestError(
+					'Incorrect / invalid parameters supplied'
+				);
+			}
+
+			const resetToken = crypto
+				.randomBytes(256)
+				.toString('hex')
+				.substring(0, 255);
+			const resetLink = `${config.get(
+				'server.frontEnd.url'
+			)}/resetPassword/${resetToken}`;
+			const emailStructure = new EmailStructure(
+				'Password Reset',
+				'Did you forget your password?',
+				`Seems like you forgot your password for the Node API Boilerplate. If this is true, please click the button below to reset your password.`,
+				`If you did not forget your password you can safely ignore this email.`,
+				'Reset My Password',
+				`${resetLink}`
+			);
+			const emailContent = await GenerateEmail.create(emailStructure);
+
+			// Save the reset token
+			userResult.resetPasswordToken = resetToken;
+			userResult.resetPasswordExpiresAt = moment(new Date())
+				.add(30, 'm')
+				.toDate();
+			this.update(userResult);
+
+			const messageInfo: SentMessageInfo = await this.sendMail.send(
+				`Forgot Password`,
+				[userResult.emailAddress],
+				emailContent
+			);
+			this.appLogger.winston.debug(
+				`UserService: Email Sent: ${JSON.stringify(messageInfo)}`
+			);
+
+			return {
+				result:
+					'Email sent. Please check your inbox for a password reset link.'
+			};
+		} catch (error) {
+			if (error instanceof HttpError) {
+				throw error;
+			}
+			throw new InternalServerError(error);
+		}
+	}
+
+	public async resetPassword(resetToken: string): Promise<User> {
+		try {
+			const userResult: User = await this.userRepository.findOneByFilter({
+				where: {
+					reset_password_token: resetToken
+				}
+			});
+
+			if (
+				!userResult ||
+				!User.validId(userResult.id) ||
+				!userResult.resetPasswordExpiresAt ||
+				!userResult.resetPasswordToken
+			) {
+				throw new BadRequestError(
+					'Password reset token is invalid or has expired.'
+				);
+			}
+
+			const hasExpired =
+				new Date().getTime() >
+				userResult.resetPasswordExpiresAt.getTime();
+
+			if (hasExpired) {
+				throw new BadRequestError(
+					'Password reset token is invalid or has expired.'
+				);
+			}
+
+			// Token is valid
+			return userResult.sanitize();
+		} catch (error) {
+			if (error instanceof HttpError) {
+				throw error;
+			}
+			throw new InternalServerError(error);
+		}
+	}
+
+	public async newPassword(
+		user: User,
+		newPassword: string,
+		resetToken: string
+	): Promise<object> {
+		try {
+			// Check if the user is valid
+			const userIsValid = await user.isValid();
+			if (
+				!userIsValid ||
+				!User.validId(user.id) ||
+				!newPassword ||
+				!resetToken
+			) {
+				throw new BadRequestError(
+					'Incorrect / invalid parameters supplied'
+				);
+			}
+
+			// Fetch the user from the database
+			const userResult: User = await this.userRepository.findOneByFilter({
+				where: {
+					username: user.username,
+					reset_password_token: resetToken
+				}
+			});
+
+			if (
+				!userResult ||
+				!User.validId(userResult.id) ||
+				!userResult.resetPasswordExpiresAt ||
+				!userResult.resetPasswordToken
+			) {
+				throw new BadRequestError(
+					'Password reset token is invalid or has expired.'
+				);
+			}
+
+			const hasExpired =
+				new Date().getTime() >
+				userResult.resetPasswordExpiresAt.getTime();
+
+			if (hasExpired) {
+				throw new BadRequestError(
+					'Password reset token is invalid or has expired.'
+				);
+			}
+
+			// Validate the input parameters
+			const userValidate: User = User.cloneUser(userResult);
+			userValidate.password = newPassword;
+			await userValidate.isValid();
+
+			// Encrypt the users new password
+			userResult.password = newPassword;
+			await userResult.encryptUserPassword();
+
+			// Reset values
+			// tslint:disable no-null-keyword
+			userResult.resetPasswordToken = '';
+			userResult.resetPasswordExpiresAt = moment(new Date())
+				.subtract(30, 'm')
+				.toDate();
+
+			// Update the user on the database
+			const userUpdateResult: User = await this.userRepository.updateOneById(
+				userResult.id,
+				userResult
+			);
+			return await this.login(
+				userUpdateResult.username,
+				newPassword,
+				userUpdateResult.emailAddress
+			);
 		} catch (error) {
 			if (error instanceof HttpError) {
 				throw error;

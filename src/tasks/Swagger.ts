@@ -14,16 +14,9 @@ const activeModels: string[] = [];
 const controllers = glob.sync(path.resolve('src/controllers/*.ts'));
 const models = glob.sync(path.resolve('src/models/**/*.ts'));
 
-const avmControllers = glob.sync(
-	path.resolve('src/cm-telecom/controllers/*.ts')
-);
-const avmModels = glob.sync(path.resolve('src/cm-telecom/models/**/*.ts'));
-
 activeControllers.push(...controllers);
-activeControllers.push(...avmControllers);
 
 activeModels.push(...models);
-activeModels.push(...avmModels);
 
 const errors = glob.sync(path.resolve('src/exceptions/*.ts'));
 

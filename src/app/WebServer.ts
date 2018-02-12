@@ -1,7 +1,3 @@
-import 'reflect-metadata';
-import 'source-map-support/register';
-import 'ts-helpers';
-
 import * as cluster from 'cluster';
 import * as config from 'config';
 import * as http from 'http';
