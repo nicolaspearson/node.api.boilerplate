@@ -302,7 +302,7 @@ export default class UserService extends BaseService {
 	public async changePassword(
 		user: User,
 		newPassword: string
-	): Promise<User> {
+	): Promise<object> {
 		try {
 			// Check if the user is valid
 			const userIsValid = await user.isValid();
@@ -344,7 +344,11 @@ export default class UserService extends BaseService {
 				userResult.id,
 				userResult
 			);
-			return userUpdateResult.sanitize();
+			return await this.login(
+				userUpdateResult.username,
+				newPassword,
+				userUpdateResult.emailAddress
+			);
 		} catch (error) {
 			if (error instanceof HttpError) {
 				throw error;

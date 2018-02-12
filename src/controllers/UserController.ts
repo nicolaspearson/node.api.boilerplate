@@ -253,7 +253,12 @@ export default class UserController {
 	 *       200:
 	 *         description: The updated user
 	 *         schema:
-	 *           $ref: '#/definitions/UserResponse'
+	 *           type: object
+	 *           properties:
+	 *             user:
+	 *               $ref: '#/definitions/UserResponse'
+	 *             token:
+	 *               $ref: '#/definitions/TokenResponse'
 	 *       400:
 	 *         $ref: '#/responses/BadRequest'
 	 *       401:
@@ -274,11 +279,12 @@ export default class UserController {
 	 *         $ref: '#/responses/DefaultError'
 	 */
 	@Post('/users/changePassword')
+	@Authorized()
 	public async changePassword(
 		@BodyParam('newPassword') newPassword: string,
 		@BodyParam('user', { validate: false })
 		user: User
-	): Promise<User> {
+	): Promise<object> {
 		if (!user || !newPassword) {
 			throw new BadRequestError(
 				'The required parameters were not supplied.'
