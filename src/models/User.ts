@@ -91,6 +91,9 @@ export default class User {
 	@Column({ name: 'last_logged_in_at' })
 	public lastLoggedInAt: Date;
 
+	@Column({ name: 'verification_token' })
+	public verificationToken: string;
+
 	@Column({ name: 'reset_password_token' })
 	public resetPasswordToken: string;
 
@@ -210,6 +213,7 @@ export default class User {
 
 	public sanitize(): User {
 		delete this.password;
+		delete this.verificationToken;
 		delete this.resetPasswordToken;
 		delete this.resetPasswordExpiresAt;
 		return this;

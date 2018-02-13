@@ -312,6 +312,127 @@ export default class UserService extends BaseService {
 		}
 	}
 
+	public async signUp(user: User): Promise<object> {
+		try {
+			// Check if the user is valid
+			const userIsValid = await user.isValid();
+			if (!userIsValid) {
+				throw new BadRequestError(
+					'Incorrect / invalid parameters supplied'
+				);
+			}
+
+			// Check if the domain is whitelisted
+			const domains: string[] = config.get('server.api.signUpWhitelist');
+			if (
+				!(domains.indexOf(`@${user.emailAddress.split('@')[1]}`) > -1)
+			) {
+				throw new UnauthorizedError(
+					`The provided domain: '${
+						user.emailAddress.split('@')[1]
+					}' has not been whitelisted`
+				);
+			}
+
+			// Make sure the user does not exist
+			try {
+				const testUser: User = await this.findOneWithQueryBuilder({
+					where: `email_address = '${
+						user.emailAddress
+					}' OR username = '${user.username}'`
+				});
+				if (testUser && User.validId(testUser.id)) {
+					throw new BadRequestError(
+						'The username or email address is already in use, please select a different username or email address'
+					);
+				}
+			} catch (error) {
+				if (error instanceof BadRequestError) {
+					throw error;
+				}
+				// User not found - Continue...
+			}
+
+			// Disable the user
+			user.enabled = false;
+
+			// Save the user to the database
+			const userResult: User = await this.save(user);
+
+			const verificationToken = crypto
+				.randomBytes(256)
+				.toString('hex')
+				.substring(0, 255);
+			const verificationLink = `${config.get(
+				'server.frontEnd.url'
+			)}/verify-account/${verificationToken}`;
+			const emailStructure = new EmailStructure(
+				'Welcome To The Hyve AVM Platform',
+				'Complete Registration',
+				`Please verify your account by clicking on the button below.`,
+				`Once we have verified your account, you will be able to login, and access all of the available features!`,
+				'Verify My Account',
+				`${verificationLink}`
+			);
+			const emailContent = await GenerateEmail.create(emailStructure);
+
+			// Save the verification token
+			userResult.verificationToken = verificationToken;
+			await this.update(userResult);
+
+			const messageInfo: SentMessageInfo = await this.sendMail.send(
+				`Welcome to the Hyve AVM Platform`,
+				[userResult.emailAddress],
+				emailContent
+			);
+			this.appLogger.winston.debug(
+				`UserService: Email Sent: ${JSON.stringify(messageInfo)}`
+			);
+
+			return {
+				result:
+					'Email sent. Please check your inbox to verify your account.'
+			};
+		} catch (error) {
+			if (error instanceof HttpError) {
+				throw error;
+			}
+			throw new InternalServerError(error);
+		}
+	}
+
+	public async verifyAccount(verificationToken: string): Promise<User> {
+		try {
+			const userResult: User = await this.userRepository.findOneByFilter({
+				where: {
+					verification_token: verificationToken
+				}
+			});
+
+			if (
+				!userResult ||
+				!User.validId(userResult.id) ||
+				!userResult.verificationToken
+			) {
+				throw new BadRequestError(
+					'Verification token is invalid or has expired.'
+				);
+			}
+
+			// Token is valid - Update values
+			userResult.verificationToken = '';
+			userResult.enabled = true;
+			await this.update(userResult);
+
+			return userResult.sanitize();
+		} catch (error) {
+			if (error instanceof HttpError) {
+				throw error;
+			}
+			throw new InternalServerError(error);
+		}
+	}
+
 	public async changePassword(
 		user: User,
 		newPassword: string
@@ -425,7 +546,7 @@ export default class UserService extends BaseService {
 			userResult.resetPasswordExpiresAt = moment(new Date())
 				.add(30, 'm')
 				.toDate();
-			this.update(userResult);
+			await this.update(userResult);
 
 			const messageInfo: SentMessageInfo = await this.sendMail.send(
 				`Forgot Password`,
@@ -545,7 +666,6 @@ export default class UserService extends BaseService {
 			await userResult.encryptUserPassword();
 
 			// Reset values
-			// tslint:disable no-null-keyword
 			userResult.resetPasswordToken = '';
 			userResult.resetPasswordExpiresAt = moment(new Date())
 				.subtract(30, 'm')

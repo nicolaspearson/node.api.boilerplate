@@ -174,6 +174,7 @@ export class WebServer {
 					password: config.get('server.user.password'),
 					emailAddress: config.get('server.user.email')
 				});
+				user.enabled = true;
 				await this.userService.save(user);
 			} else {
 				this.appLogger.winston.error(`WebServer: User Already Exists`);

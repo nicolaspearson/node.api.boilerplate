@@ -185,7 +185,11 @@ export default class UserController {
 	 *       200:
 	 *         description: The saved user
 	 *         schema:
-	 *           $ref: '#/definitions/UserResponse'
+	 *           type: object
+	 *           properties:
+	 *             result:
+	 *               description: whether or not a validation link was sent to the provided email address
+	 *               type: string
 	 *       400:
 	 *         $ref: '#/responses/BadRequest'
 	 *       401:
@@ -210,6 +214,74 @@ export default class UserController {
 		@HeaderParam('x-access-token') accessToken: string,
 		@Body({ validate: false })
 		user: User
+	): Promise<object> {
+		if (
+			!accessToken ||
+			!(accessToken === config.get('server.auth.accessToken'))
+		) {
+			throw new UnauthorizedError('Invalid API token');
+		}
+		return await this.userService.signUp(user);
+	}
+
+	/**
+	 * @swagger
+	 * /users/verifyAccount:
+	 *   post:
+	 *     summary: Allow a user to verify their account
+	 *     description: Allows an existing user to verify their account
+	 *     operationId: verifyAccount
+	 *     tags: [user]
+	 *     consumes:
+	 *       - application/json
+	 *     produces:
+	 *       - application/json
+	 *     parameters:
+	 *       - name: x-access-token
+	 *         in: header
+	 *         description: api access token
+	 *         required: true
+	 *         type: string
+	 *       - name: body
+	 *         in: body
+	 *         required: true
+	 *         schema:
+	 *           type: object
+	 *           properties:
+	 *             verificationToken:
+	 *               description: the account verification token
+	 *               type: string
+	 *     responses:
+	 *       200:
+	 *         description: The verified account
+	 *         schema:
+	 *           type: object
+	 *           properties:
+	 *             user:
+	 *               $ref: '#/definitions/UserResponse'
+	 *       400:
+	 *         $ref: '#/responses/BadRequest'
+	 *       401:
+	 *         $ref: '#/responses/Unauthorized'
+	 *       403:
+	 *         $ref: '#/responses/Forbidden'
+	 *       404:
+	 *         $ref: '#/responses/NotFound'
+	 *       405:
+	 *         $ref: '#/responses/MethodNotAllowed'
+	 *       406:
+	 *         $ref: '#/responses/NotAcceptable'
+	 *       500:
+	 *         $ref: '#/responses/InternalServerError'
+	 *       504:
+	 *         $ref: '#/responses/GatewayTimeout'
+	 *       default:
+	 *         $ref: '#/responses/DefaultError'
+	 */
+	@Post('/users/verifyAccount')
+	public async verifyAccount(
+		@HeaderParam('x-access-token') accessToken: string,
+		@BodyParam('verificationToken') verificationToken: string
 	): Promise<User> {
 		if (
 			!accessToken ||
@@ -217,7 +289,12 @@ export default class UserController {
 		) {
 			throw new UnauthorizedError('Invalid API token');
 		}
-		return await this.userService.save(user);
+		if (!verificationToken) {
+			throw new BadRequestError(
+				'The required parameters were not supplied.'
+			);
+		}
+		return await this.userService.verifyAccount(verificationToken);
 	}
 
 	/**
