@@ -1,50 +1,60 @@
+// cSpell Settings
 {
-	"version": "0.1",
-	"language": "en",
-	"words": [
-		"antialiased",
-		"Arial",
-		"asynciterable",
-		"bodyparser",
-		"cellpadding",
-		"cellspacing",
-		"dbtest",
-		"deserialize",
-		"esnext",
-		"evenodd",
-		"farmhash",
-		"fieldname",
-		"Guid",
-		"kcors",
-		"keepalive",
-		"lspace",
-		"middlewares",
-		"mockito",
-		"msisdn",
-		"Msisdns",
-		"nacl",
-		"nbsp",
-		"nospace",
-		"onespace",
-		"outro",
-		"pree",
-		"preheader",
-		"promisify",
-		"quotemark",
-		"rspace",
-		"sbin",
-		"sendmail",
-		"testdb",
-		"tweetnacl",
-		"typedi",
-		"typeorm",
-		"valign",
-		"Websockets",
-		"xlink",
-		"xmlns"
-	],
-	// flagWords - list of words to be always considered incorrect
-	// This is useful for offensive words and common spelling errors.
-	// For example "hte" should be "the"
-	"flagWords": ["hte"]
+    
+    // Version of the setting file.  Always 0.1
+    "version": "0.1",
+    
+    // language - current active spelling language
+    "language": "en",
+    
+    // words - list of words to be always considered correct
+    "words": [
+        "antialiased",
+        "Arial",
+        "asynciterable",
+        "bodyparser",
+        "cellpadding",
+        "cellspacing",
+        "dbtest",
+        "deserialize",
+        "esnext",
+        "evenodd",
+        "farmhash",
+        "fieldname",
+        "Guid",
+        "kcors",
+        "keepalive",
+        "lspace",
+        "middlewares",
+        "mockito",
+        "msisdn",
+        "Msisdns",
+        "nacl",
+        "nbsp",
+        "nospace",
+        "onespace",
+        "outro",
+        "pree",
+        "preheader",
+        "promisify",
+        "quotemark",
+        "rspace",
+        "sbin",
+        "sendmail",
+        "testdb",
+        "tweetnacl",
+        "typedi",
+        "typeorm",
+        "valign",
+        "Websockets",
+        "whitelisted",
+        "xlink",
+        "xmlns"
+    ],
+    // flagWords - list of words to be always considered incorrect
+    // This is useful for offensive words and common spelling errors.
+    // For example "hte" should be "the"
+    "flagWords": [
+        "hte"
+    ]
 }

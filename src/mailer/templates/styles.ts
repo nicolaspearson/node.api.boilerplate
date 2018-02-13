@@ -73,6 +73,7 @@ export function getUnbrandedCss() {
 					background: #ffffff;
 					border-radius: 3px;
 					width: 100%;
+					padding: 4px;
 				}
 
 				.wrapper {

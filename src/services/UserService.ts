@@ -325,6 +325,8 @@ export default class UserService extends BaseService {
 			// Check if the domain is whitelisted
 			const domains: string[] = config.get('server.api.signUpWhitelist');
 			if (
+				domains.length > 0 &&
+				!(domains.indexOf('*') > -1) &&
 				!(domains.indexOf(`@${user.emailAddress.split('@')[1]}`) > -1)
 			) {
 				throw new UnauthorizedError(
@@ -343,7 +345,7 @@ export default class UserService extends BaseService {
 				});
 				if (testUser && User.validId(testUser.id)) {
 					throw new BadRequestError(
-						'The username or email address is already in use, please select a different username or email address'
+						'The username or email address is already in use'
 					);
 				}
 			} catch (error) {
@@ -367,7 +369,7 @@ export default class UserService extends BaseService {
 				'server.frontEnd.url'
 			)}/verify-account/${verificationToken}`;
 			const emailStructure = new EmailStructure(
-				'Welcome To The Hyve AVM Platform',
+				'Welcome To The Node API Boilerplate',
 				'Complete Registration',
 				`Please verify your account by clicking on the button below.`,
 				`Once we have verified your account, you will be able to login, and access all of the available features!`,
@@ -381,7 +383,7 @@ export default class UserService extends BaseService {
 			await this.update(userResult);
 
 			const messageInfo: SentMessageInfo = await this.sendMail.send(
-				`Welcome to the Hyve AVM Platform`,
+				`Welcome to the Node API Boilerplate!`,
 				[userResult.emailAddress],
 				emailContent
 			);
@@ -390,8 +392,7 @@ export default class UserService extends BaseService {
 			);
 
 			return {
-				result:
-					'Email sent. Please check your inbox to verify your account.'
+				result: 'Check your inbox to verify your account'
 			};
 		} catch (error) {
 			if (error instanceof HttpError) {

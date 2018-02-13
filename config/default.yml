@@ -6,6 +6,7 @@ server:
     host: localhost
     port: 3000
     protocol: http
+    signUpWhitelist: ['*']
     whitelist: ['http://localhost:3000']
   auth:
     accessToken: 'SecretAccessToken'
