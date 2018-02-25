@@ -169,6 +169,36 @@ export default class TemplateService extends BaseService {
 		}
 	}
 
+	public async saveAll(templates: Template[]): Promise<Template[]> {
+		try {
+			for (const template of templates) {
+				// Check if the template is valid
+				const templateIsValid = await template.isValid();
+				if (!templateIsValid) {
+					throw new BadRequestError(
+						'Incorrect / invalid parameters supplied'
+					);
+				}
+			}
+			// Save the templates to the database
+			const templateResults = await this.templateRepository.saveAll(
+				templates
+			);
+			const sanitizedTemplates = templateResults.map(
+				(template: Template) => {
+					template.sanitize();
+					return template;
+				}
+			);
+			return sanitizedTemplates;
+		} catch (error) {
+			if (error instanceof HttpError) {
+				throw error;
+			}
+			throw new InternalServerError(error);
+		}
+	}
+
 	public async update(template: Template): Promise<Template> {
 		try {
 			// Check if the template is valid

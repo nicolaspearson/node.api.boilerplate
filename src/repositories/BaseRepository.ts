@@ -118,6 +118,33 @@ export default abstract class BaseRepository<T> {
 		return result;
 	}
 
+	public async saveAll(
+		records: T[],
+		options?: SaveOptions,
+		resolveRelations?: boolean
+	): Promise<T[]> {
+		const results: any = await this.executeRepositoryFunction(
+			this.getRepository().save(records, options)
+		);
+		if (!results) {
+			throw new NotFoundError(
+				`${this.entityName}: The records were not saved`
+			);
+		}
+
+		if (resolveRelations) {
+			const eagerResults: T[] = [];
+			for (const result of results) {
+				if (result.id) {
+					// Use find to automatically resolve eager relations
+					eagerResults.push(await this.findOneById(result.id));
+				}
+			}
+			return eagerResults;
+		}
+		return results;
+	}
+
 	public async updateOneById(
 		id: number,
 		record: T,
