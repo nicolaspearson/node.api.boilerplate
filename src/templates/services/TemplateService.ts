@@ -27,10 +27,12 @@ export default class TemplateService extends BaseService {
 	public async findAll(): Promise<Template[]> {
 		try {
 			const templates: Template[] = await this.templateRepository.getAll();
-			const sanitizedTemplates = templates.map((template: Template) => {
-				template.sanitize();
-				return template;
-			});
+			const sanitizedTemplates = templates.map(
+				(templateItem: Template) => {
+					templateItem.sanitize();
+					return templateItem;
+				}
+			);
 			return sanitizedTemplates;
 		} catch (error) {
 			if (error instanceof HttpError) {
@@ -47,10 +49,12 @@ export default class TemplateService extends BaseService {
 			const templates: Template[] = await this.templateRepository.findManyByFilter(
 				filter
 			);
-			const sanitizedTemplates = templates.map((template: Template) => {
-				template.sanitize();
-				return template;
-			});
+			const sanitizedTemplates = templates.map(
+				(templateItem: Template) => {
+					templateItem.sanitize();
+					return templateItem;
+				}
+			);
 			return sanitizedTemplates;
 		} catch (error) {
 			if (error instanceof HttpError) {
@@ -106,7 +110,7 @@ export default class TemplateService extends BaseService {
 				return templateResult.sanitize();
 			} else {
 				throw new NotFoundError(
-					'The requested object could not be found'
+					'The requested Template could not be found'
 				);
 			}
 		} catch (error) {
@@ -124,10 +128,13 @@ export default class TemplateService extends BaseService {
 			const results = await this.templateRepository.findManyWithQueryBuilder(
 				options
 			);
-			const sanitizedResults = results.map((template: Template) => {
-				template.sanitize();
-				return template;
-			});
+			const sanitizedResults: Template[] = [];
+			for (const result of results) {
+				// Use find to automatically resolve eager relations
+				const item = await this.findOneById(result.id);
+				item.sanitize();
+				sanitizedResults.push(item);
+			}
 			return sanitizedResults;
 		} catch (error) {
 			if (error instanceof HttpError) {

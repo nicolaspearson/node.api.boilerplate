@@ -47,6 +47,7 @@
 		"prefer-const": true,
 		"jsdoc-format": true,
 		"arrow-parens": false,
-		"await-promise": true
+		"await-promise": true,
+		"ordered-imports": true
 	}
 }

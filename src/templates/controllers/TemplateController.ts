@@ -1,3 +1,4 @@
+import { plainToClass } from 'class-transformer';
 import {
 	Authorized,
 	Body,
@@ -242,8 +243,9 @@ export default class TemplateController {
 	 */
 	@Post('/templates/many')
 	@Authorized()
-	public async saveTemplateArray(@Body() templateList: Template[]) {
-		return await this.templateService.saveAll(templateList);
+	public async saveTemplateArray(@Body() templateList: object[]) {
+		const transformedList = plainToClass(Template, templateList);
+		return await this.templateService.saveAll(transformedList);
 	}
 
 	/**
